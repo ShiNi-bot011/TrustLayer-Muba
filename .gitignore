@@ -1,0 +1,14 @@
+# OS & IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Sui Move Build Artifacts
+contracts/**/build/
+
+# Node / Frontend / Simulator
+node_modules/
+dist/
+.env
+.env.local
+*.log
