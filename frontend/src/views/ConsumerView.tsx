@@ -97,24 +97,36 @@ function TrustCard({ label, state }: TrustCardProps) {
         </span>
       </header>
 
-      {/* Health score — the visual centrepiece */}
+      {/* Health score — Circular SVG Gauge */}
       <section className="trust-card__score-section" aria-label="Health score">
-        <div
-          className="health-score"
-          style={{ color: healthScoreColor(state.healthScore) }}
-          aria-label={`Health score: ${state.healthScore} out of 100`}
-        >
-          <span className="health-score__number">{state.healthScore}</span>
-          <span className="health-score__label">/100</span>
-        </div>
-        <div className="health-bar" aria-hidden="true">
-          <div
-            className="health-bar__fill"
-            style={{
-              width: `${state.healthScore}%`,
-              backgroundColor: healthScoreColor(state.healthScore),
-            }}
-          />
+        <div className="health-score-gauge">
+          <svg className="gauge-svg" viewBox="0 0 100 100" width="120" height="120">
+            <circle
+              className="gauge-bg"
+              cx="50"
+              cy="50"
+              r="40"
+              strokeWidth="8"
+              fill="transparent"
+            />
+            <circle
+              className="gauge-fill"
+              cx="50"
+              cy="50"
+              r="40"
+              strokeWidth="8"
+              fill="transparent"
+              stroke={healthScoreColor(state.healthScore)}
+              strokeDasharray="251.2"
+              strokeDashoffset={251.2 - (251.2 * state.healthScore) / 100}
+              strokeLinecap="round"
+              transform="rotate(-90 50 50)"
+            />
+          </svg>
+          <div className="gauge-text" style={{ color: healthScoreColor(state.healthScore) }}>
+            <span className="health-score__number">{state.healthScore}</span>
+            <span className="health-score__label">/100</span>
+          </div>
         </div>
         <p className="health-score__caption">Fulfillment Health Score</p>
       </section>
@@ -122,20 +134,22 @@ function TrustCard({ label, state }: TrustCardProps) {
       {/* Bond details */}
       <section className="trust-card__bond" aria-label="Bond information">
         <div className="bond-item">
-          <span className="bond-item__label">Bond Staked</span>
+          <span className="bond-item__label">Secured Performance Bond</span>
           <span className="bond-item__value bond-item__value--staked">
             {formatSui(state.bondBalanceMist)}
+            <small className="bond-item__fiat"> (~RM {(Number(state.bondBalanceMist) / 1e9 * 10).toFixed(2)})</small>
           </span>
         </div>
         <div className="bond-item">
           <span className="bond-item__label">Required Bond</span>
           <span className="bond-item__value">
             {formatSui(state.requiredBondMist)}
+            <small className="bond-item__fiat"> (~RM {(Number(state.requiredBondMist) / 1e9 * 10).toFixed(2)})</small>
           </span>
         </div>
         {state.bondBalanceMist < state.requiredBondMist && (
           <p className="bond-undercollateral" role="alert">
-            ⚠️ Bond below required — top-up needed
+            ⚠️ Bond below required floor — top-up needed
           </p>
         )}
       </section>

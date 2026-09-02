@@ -9,9 +9,12 @@ use sui::event;
 use sui::sui::SUI;
 
 // Replace these demo settings with governed configuration before production.
-const DEMO_ORACLE: address = @0xAD;
+// DEMO_ORACLE: your Sui CLI active address on testnet (sui client active-address).
+// Production must replace with a governed, decentralized oracle address.
+const DEMO_ORACLE: address = @0xa32b2a83afd2dc19c759d7b7db1f7c23a4abecd02279cb6cf7d73dbc74516210;
 /// Fixed demo payout destination. Production must replace this with a governed payout pool.
-const DEMO_PAYOUT_RECIPIENT: address = @0xC0;
+// Using DEMO_ORACLE address as payout recipient for simplicity in the hackathon demo.
+const DEMO_PAYOUT_RECIPIENT: address = @0xa32b2a83afd2dc19c759d7b7db1f7c23a4abecd02279cb6cf7d73dbc74516210;
 const CHALLENGE_WINDOW_MS: u64 = 259_200_000; // Production: 72 hours.
 const DEMO_CHALLENGE_WINDOW_MS: u64 = 72_000; // Demo: 72 seconds.
 const ABSOLUTE_FLOOR: u64 = 500_000_000; // 0.5 SUI in MIST.
@@ -126,14 +129,13 @@ public entry fun finalize_slash(merchant: &mut Merchant, clock: &Clock, ctx: &mu
     event::emit(SlashFinalized { merchant_id: object::uid_to_inner(&merchant.id), amount_deducted: amount });
 }
 
-/// Overflow-aware equivalent of revenue * (100 - score) / 100, with an absolute floor.
-public fun required_bond(revenue: u64, score: u64): u64 {
-    assert!(score <= 100, EInvalidHealthScore); let risk = 100 - score;
-    max((revenue / 100) * risk + ((revenue % 100) * risk) / 100, ABSOLUTE_FLOOR)
-}
-fun assert_oracle(ctx: &TxContext) { assert!(ctx.sender() == DEMO_ORACLE, ENotOracle); }
-fun min(a: u64, b: u64): u64 { if (a < b) a else b }
-fun max(a: u64, b: u64): u64 { if (a > b) a else b }
+    use std::u64::{min, max};
+
+    public fun required_bond(revenue: u64, score: u64): u64 {
+        assert!(score <= 100, EInvalidHealthScore); let risk = 100 - score;
+        max((revenue / 100) * risk + ((revenue % 100) * risk) / 100, ABSOLUTE_FLOOR)
+    }
+    fun assert_oracle(ctx: &TxContext) { assert!(ctx.sender() == DEMO_ORACLE, ENotOracle); }
 
 public fun demo_oracle(): address { DEMO_ORACLE }
 public fun demo_payout_recipient(): address { DEMO_PAYOUT_RECIPIENT }

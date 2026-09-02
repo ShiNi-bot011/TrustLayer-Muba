@@ -7,7 +7,7 @@ use sui::coin::{Self, Coin};
 use sui::sui::SUI;
 use sui::test_scenario::{Self as ts};
 
-const ORACLE: address = @0xAD;
+const ORACLE: address = @0xa32b2a83afd2dc19c759d7b7db1f7c23a4abecd02279cb6cf7d73dbc74516210;
 const OWNER: address = @0xB0B;
 const CONSUMER: address = @0xC0;
 const ATTACKER: address = @0xBAD;
@@ -60,9 +60,11 @@ fun finalize_cannot_redirect_payout() {
     merchant::finalize_slash(&mut m, &c, ts::ctx(&mut s));
     assert!(merchant::status(&m) == merchant::status_slashed(), 0);
     assert!(merchant::bond_balance(&m) == 0, 1); ts::return_shared(c); ts::return_shared(m);
-    ts::next_tx(&mut s, CONSUMER); let payout = ts::take_from_sender<Coin<SUI>>(&s);
+    // Payout goes to DEMO_PAYOUT_RECIPIENT == ORACLE address (updated for testnet)
+    ts::next_tx(&mut s, ORACLE); let payout = ts::take_from_sender<Coin<SUI>>(&s);
     assert!(coin::value(&payout) == 1_000_000_000, 2); coin::burn_for_testing(payout); ts::end(s);
 }
+
 
 #[test] #[expected_failure(abort_code = 3)]
 fun blocks_merchant_self_scoring() {

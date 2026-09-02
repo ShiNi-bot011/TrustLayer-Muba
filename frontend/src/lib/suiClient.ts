@@ -3,56 +3,36 @@
  *
  * PURPOSE: isolate all Sui RPC/SDK reads from UI components.
  * ConsumerView and AdminControlPanel import from here — they do NOT
- * contain raw SuiClient/SuiGrpcClient calls.
+ * contain raw Sui RPC calls.
  *
  * MOCK_MODE:
- *   true  → return mock data (no network call). Use until Adam posts
- *            the deployed Merchant object IDs for Merchant A and B.
- *   false → real on-chain read via Sui testnet gRPC/RPC.
- *
- * CONTRACT STATUS (as of Day 2 / 2026-09-02):
- *   Package ID : 0x6fcff68419d9540248d34f7bbe46ab12ad1f5905bb7f94f1d1fcb083f620efd1
- *   Deployed   : register_merchant, deposit_bond, all getter functions.
- *   Pending    : update_health_score, record_checkin, initiate_slash,
- *                submit_counter_evidence, finalize_slash (Adam Day 2 work).
- *
- * HOW TO SWAP IN REAL DATA (Day 3):
- *   1. Set MOCK_MODE = false.
- *   2. Replace MERCHANT_OBJECT_IDS values with real shared-object IDs
- *      that Adam calls register_merchant with.
- *   3. No other changes to ConsumerView or AdminControlPanel needed.
+ *   false → real on-chain read via Sui testnet RPC.
+ *   true  → return mock data fallback if network is unreachable.
  */
-
-import { SuiGrpcClient } from "@mysten/sui/grpc";
 
 // ---------------------------------------------------------------------------
 // Configuration
 // ---------------------------------------------------------------------------
 
-/** Deployed contract package ID on Sui testnet (from Published.toml). */
+/** Deployed contract package ID on Sui testnet. */
 export const PACKAGE_ID =
-  "0x6fcff68419d9540248d34f7bbe46ab12ad1f5905bb7f94f1d1fcb083f620efd1";
+  "0x88f8473000a36652045c2253e4e2b0b9c6d93fa44fda61943580f2918ee07475";
 
 /**
- * MOCK_MODE — set to false once Adam registers real Merchant objects and
- * posts their object IDs to the team channel.
- *
- * DO NOT set to false and leave MERCHANT_OBJECT_IDS as placeholders.
- * The app must never display fake data labelled as real on-chain data.
+ * MOCK_MODE — false uses live Sui testnet on-chain reads.
  */
-export const MOCK_MODE = true;
+export const MOCK_MODE = false;
 
 /**
- * Shared Merchant object IDs.
- * REPLACE with real IDs once Adam calls register_merchant on testnet.
- * Keys are human-readable labels used in the UI and admin panel.
+ * Shared Merchant object IDs on Sui testnet.
  */
 export const MERCHANT_OBJECT_IDS: Record<string, string> = {
-  // PLACEHOLDER — replace with real shared-object ID from Adam
-  "Merchant A": "0x_PLACEHOLDER_MERCHANT_A",
-  // PLACEHOLDER — replace with real shared-object ID from Adam
-  "Merchant B": "0x_PLACEHOLDER_MERCHANT_B",
+  "Merchant A": "0x77b343276131947ae93218ae7d36e34ef3576c8cc9dc9377401af7c34e6e445e",
+  "Merchant B": "0x49aba03938aa9d99d5a9b090db555d3f31ab672a2dceb1406f4a3bad4233abca",
 };
+
+/** Sui testnet JSON-RPC endpoint */
+const SUI_TESTNET_RPC = "https://sui-testnet-rpc.publicnode.com";
 
 // ---------------------------------------------------------------------------
 // Status enum (mirrors the Move contract — do not change values)
@@ -89,41 +69,39 @@ export interface MerchantState {
 }
 
 // ---------------------------------------------------------------------------
-// Mock data (CLEARLY labelled — do NOT present as real on-chain state)
+// Mock data (CLEARLY labelled fallback)
 // ---------------------------------------------------------------------------
 
-/** MOCK data for demo/development when MOCK_MODE=true or object IDs missing. */
 const MOCK_MERCHANTS: Record<string, MerchantState> = {
   "Merchant A": {
-    objectId: "0x_MOCK_MERCHANT_A",
-    name: "Merchant A (True Fitness-style)",
-    bondBalanceMist: BigInt("2_500_000_000".replace(/_/g, "")), // 2.5 SUI
+    objectId: "0x77b343276131947ae93218ae7d36e34ef3576c8cc9dc9377401af7c34e6e445e",
+    name: "Merchant A - True Fitness Style",
+    bondBalanceMist: BigInt("2500000000"), // 2.5 SUI
     healthScore: 92,
     status: STATUS.ACTIVE,
-    requiredBondMist: BigInt("800_000_000".replace(/_/g, "")), // 0.8 SUI
-    trailing30dRevenueMist: BigInt("10_000_000_000".replace(/_/g, "")),
+    requiredBondMist: BigInt("800000000"), // 0.8 SUI
+    trailing30dRevenueMist: BigInt("10000000000"),
     isMockData: true,
   },
   "Merchant B": {
-    objectId: "0x_MOCK_MERCHANT_B",
-    name: "Merchant B (1Fit-style)",
-    bondBalanceMist: BigInt("1_000_000_000".replace(/_/g, "")), // 1 SUI
-    healthScore: 72,
+    objectId: "0x49aba03938aa9d99d5a9b090db555d3f31ab672a2dceb1406f4a3bad4233abca",
+    name: "Merchant B - 1Fit Style",
+    bondBalanceMist: BigInt("1000000000"), // 1.0 SUI
+    healthScore: 90,
     status: STATUS.ACTIVE,
-    requiredBondMist: BigInt("2_800_000_000".replace(/_/g, "")),
-    trailing30dRevenueMist: BigInt("10_000_000_000".replace(/_/g, "")),
+    requiredBondMist: BigInt("1000000000"),
+    trailing30dRevenueMist: BigInt("10000000000"),
     isMockData: true,
   },
 };
 
 // ---------------------------------------------------------------------------
-// Bond formula (mirrors §3.3 — keep in sync with Move contract)
+// Bond formula (mirrors SDD §3.3)
 // required_bond = trailing_30d_revenue * (100 - health_score) / 100
 // clamped to >= ABSOLUTE_FLOOR
 // ---------------------------------------------------------------------------
 
-/** Absolute floor in MIST — matches Move constant (500_000_000 = 0.5 SUI). */
-const ABSOLUTE_FLOOR_MIST = BigInt(500_000_000);
+const ABSOLUTE_FLOOR_MIST = BigInt(500_000_000); // 0.5 SUI
 
 export function computeRequiredBond(
   trailing30dRevenueMist: bigint,
@@ -135,31 +113,11 @@ export function computeRequiredBond(
 }
 
 // ---------------------------------------------------------------------------
-// Sui client singleton
-// ---------------------------------------------------------------------------
-
-let _client: SuiGrpcClient | null = null;
-
-function getClient(): SuiGrpcClient {
-  if (!_client) {
-    _client = new SuiGrpcClient({
-      network: "testnet",
-      baseUrl: "https://fullnode.testnet.sui.io:443",
-    });
-  }
-  return _client;
-}
-
-// ---------------------------------------------------------------------------
 // Core read function
 // ---------------------------------------------------------------------------
 
 /**
  * Fetch a merchant's on-chain state from the Sui testnet.
- *
- * Returns mock data if MOCK_MODE=true or if the object ID is a placeholder.
- * The `isMockData` field on the returned object is always truthful —
- * UI components should surface this to the user when true.
  */
 export async function getMerchantState(
   merchantLabel: string
@@ -169,52 +127,69 @@ export async function getMerchantState(
 
   if (MOCK_MODE || isMockId) {
     const mock = MOCK_MERCHANTS[merchantLabel];
-    if (!mock) {
-      throw new Error(`Unknown merchant label: ${merchantLabel}`);
-    }
-    // Simulate a brief async delay so the UI feels real
-    await new Promise((r) => setTimeout(r, 200));
+    if (!mock) throw new Error(`Unknown merchant label: ${merchantLabel}`);
+    await new Promise((r) => setTimeout(r, 100));
     return { ...mock };
   }
 
-  // --- Real on-chain read ---
-  const client = getClient();
-  const result = await client.getObject({
-    objectId,
-  });
+  try {
+    const response = await fetch(SUI_TESTNET_RPC, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        jsonrpc: "2.0",
+        id: 1,
+        method: "sui_getObject",
+        params: [
+          objectId,
+          { showContent: true, showType: true, showOwner: true },
+        ],
+      }),
+    });
 
-  if (!result || !result.object) {
-    throw new Error(`Failed to fetch Merchant object ${objectId}`);
+    const json = await response.json();
+    const data = json?.result?.data;
+
+    if (!data || !data.content) {
+      throw new Error(`Failed to fetch Merchant object ${objectId}`);
+    }
+
+    const fields = (data.content.fields as Record<string, unknown>) ?? {};
+
+    const healthScore = Number(fields["health_score"] ?? 0);
+    const trailing30dRevenueMist = BigInt(
+      String(fields["trailing_30d_prepaid_revenue"] ?? "0")
+    );
+    const bondBalanceMist = BigInt(
+      String(
+        (fields["bond_balance"] as Record<string, unknown>)?.["value"] ??
+        fields["bond_balance"] ??
+        "0"
+      )
+    );
+    const status = Number(fields["status"] ?? 0) as MerchantStatus;
+    const name = String(fields["name"] ?? merchantLabel);
+
+    return {
+      objectId,
+      name,
+      bondBalanceMist,
+      healthScore,
+      status,
+      requiredBondMist: computeRequiredBond(trailing30dRevenueMist, healthScore),
+      trailing30dRevenueMist,
+      isMockData: false,
+    };
+  } catch (err) {
+    console.warn(`[suiClient] Failed to read on-chain for ${merchantLabel}, falling back to local state:`, err);
+    const mock = MOCK_MERCHANTS[merchantLabel];
+    if (mock) return { ...mock, isMockData: true };
+    throw err;
   }
-
-  // When live on-chain objects are available, parse fields from the response or BCS.
-  // Fallback to safe defaults if fields are not directly accessible.
-  const fields = (result.object as unknown as { fields?: Record<string, unknown> }).fields ?? {};
-
-  const healthScore = Number(fields["health_score"] ?? 0);
-  const trailing30dRevenueMist = BigInt(
-    String(fields["trailing_30d_prepaid_revenue"] ?? "0")
-  );
-  const bondBalanceMist = BigInt(
-    String((fields["bond_balance"] as Record<string, unknown>)?.["value"] ?? "0")
-  );
-  const status = Number(fields["status"] ?? 0) as MerchantStatus;
-
-  return {
-    objectId,
-    name: String(fields["name"] ?? merchantLabel),
-    bondBalanceMist,
-    healthScore,
-    status,
-    requiredBondMist: computeRequiredBond(trailing30dRevenueMist, healthScore),
-    trailing30dRevenueMist,
-    isMockData: false,
-  };
 }
 
 /**
  * Fetch all known merchants in a single batch.
- * Returns a map keyed by merchant label.
  */
 export async function getAllMerchants(): Promise<Record<string, MerchantState>> {
   const entries = await Promise.all(
@@ -227,29 +202,22 @@ export async function getAllMerchants(): Promise<Record<string, MerchantState>> 
 }
 
 // ---------------------------------------------------------------------------
-// Utility formatters (UI helpers — not data logic)
+// Utility formatters
 // ---------------------------------------------------------------------------
 
-/**
- * Format a MIST value as a SUI amount string.
- * e.g. 2_500_000_000n → "2.50 SUI"
- */
 export function formatSui(mist: bigint): string {
   const sui = Number(mist) / 1_000_000_000;
   return `${sui.toFixed(2)} SUI`;
 }
 
-/**
- * Map status code to a human-readable label.
- */
 export function statusLabel(status: MerchantStatus): string {
   switch (status) {
     case STATUS.ACTIVE:
       return "Active";
     case STATUS.PENDING_SLASH:
-      return "⚠️ Under Review";
+      return "⚠️ Under Review (72-Hour Challenge Window)";
     case STATUS.SLASHED:
-      return "Slashed";
+      return "Bond Deducted for Consumer Payout";
     case STATUS.CHALLENGED_OK:
       return "Recovered";
     default:

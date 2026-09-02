@@ -1,47 +1,65 @@
 import { useState } from 'react'
 import { ConnectButton } from '@mysten/dapp-kit-react/ui'
-import ConsumerView from './views/ConsumerView'
+import CheckoutPage from './views/CheckoutPage'
 import AdminControlPanel from './views/AdminControlPanel'
+import KioskView from './views/KioskView'
+import ConsumerAppView from './views/ConsumerAppView'
 import './App.css'
 
-type ActiveView = 'consumer' | 'admin'
+type RoleMode = 'checkout' | 'app' | 'kiosk' | 'merchant'
 
 function App() {
-  const [activeView, setActiveView] = useState<ActiveView>('consumer')
+  const [roleMode, setRoleMode] = useState<RoleMode>('checkout')
 
   return (
-    <div className="app">
-      {/* ---------- Header ---------- */}
-      <header className="app-header">
-        <div className="app-header-left">
-          <span className="app-logo">⛓</span>
-          <span className="app-title">SME Trust Layer</span>
-          <span className="app-subtitle">· MUBA Hacks 2026 · Sui Testnet</span>
+    <div className="app-shell">
+      {/* Top Role-Selection Bar */}
+      <header className="role-nav">
+        <div className="role-nav__brand">
+          <div className="role-nav__logo">🛡️</div>
+          <span className="role-nav__name">SME Trust Layer</span>
+          <span className="role-nav__network">Sui Testnet</span>
         </div>
-        <nav className="app-nav">
+
+        {/* View Switcher Tabs */}
+        <div className="role-nav__tabs">
           <button
-            id="nav-consumer"
-            className={`nav-btn ${activeView === 'consumer' ? 'nav-btn--active' : ''}`}
-            onClick={() => setActiveView('consumer')}
+            className={`role-tab ${roleMode === 'checkout' ? 'role-tab--active' : ''}`}
+            onClick={() => setRoleMode('checkout')}
           >
-            Consumer View
+            🛒 Checkout (Phase 2)
           </button>
           <button
-            id="nav-admin"
-            className={`nav-btn ${activeView === 'admin' ? 'nav-btn--active' : ''}`}
-            onClick={() => setActiveView('admin')}
+            className={`role-tab ${roleMode === 'app' ? 'role-tab--active' : ''}`}
+            onClick={() => setRoleMode('app')}
           >
-            Admin / Demo
+            📱 Consumer Wallet
           </button>
-        </nav>
-        <div className="app-wallet">
+          <button
+            className={`role-tab ${roleMode === 'kiosk' ? 'role-tab--active' : ''}`}
+            onClick={() => setRoleMode('kiosk')}
+          >
+            📟 iPad Kiosk (Phase 1)
+          </button>
+          <button
+            className={`role-tab ${roleMode === 'merchant' ? 'role-tab--active' : ''}`}
+            onClick={() => setRoleMode('merchant')}
+          >
+            📊 Merchant Portal
+          </button>
+        </div>
+
+        <div className="role-nav__actions">
           <ConnectButton />
         </div>
       </header>
 
-      {/* ---------- Main ---------- */}
-      <main className="app-main">
-        {activeView === 'consumer' ? <ConsumerView /> : <AdminControlPanel />}
+      {/* View Content */}
+      <main style={{ flex: 1 }}>
+        {roleMode === 'checkout' && <CheckoutPage />}
+        {roleMode === 'app' && <ConsumerAppView />}
+        {roleMode === 'kiosk' && <KioskView />}
+        {roleMode === 'merchant' && <AdminControlPanel />}
       </main>
     </div>
   )
