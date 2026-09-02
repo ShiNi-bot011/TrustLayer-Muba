@@ -1,0 +1,417 @@
+/* =========================================================================
+ * SME Trust Layer — Base Styles
+ *
+ * OWNERSHIP NOTE (for Junquan):
+ *   This file provides functional structure only — layout, spacing, legibility.
+ *   Junquan should override or extend these with the Google Stitch design system.
+ *   Do NOT fight this structure — extend it. The class names are semantic.
+ *
+ * FONT: Using system sans-serif as placeholder.
+ * Junquan: replace with the chosen typeface (e.g., Inter from Google Fonts).
+ * ========================================================================= */
+
+/* --- Reset & Base --- */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 16px;
+  line-height: 1.5;
+  color: #1a1a2e;
+  background: #f8fafc;
+}
+
+/* --- App Shell --- */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1.5rem;
+  background: #1a1a2e;
+  color: #f8fafc;
+  flex-wrap: wrap;
+}
+
+.app-header-left { display: flex; align-items: center; gap: 0.5rem; flex: 1; }
+.app-logo { font-size: 1.4rem; }
+.app-title { font-size: 1.1rem; font-weight: 700; }
+.app-subtitle { font-size: 0.8rem; opacity: 0.6; }
+
+.app-nav { display: flex; gap: 0.5rem; }
+
+.nav-btn {
+  padding: 0.4rem 1rem;
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 6px;
+  background: transparent;
+  color: #f8fafc;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background 0.15s;
+}
+.nav-btn:hover { background: rgba(255,255,255,0.1); }
+.nav-btn--active { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.6); }
+
+/* Wallet */
+.app-wallet { display: flex; align-items: center; gap: 0.5rem; }
+.wallet-connected { display: flex; align-items: center; gap: 0.5rem; }
+.wallet-addr { font-size: 0.8rem; opacity: 0.8; font-family: monospace; }
+
+.wallet-btn {
+  padding: 0.35rem 0.85rem;
+  border-radius: 6px;
+  border: 1px solid #4a9eff;
+  background: #4a9eff;
+  color: white;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: background 0.15s;
+}
+.wallet-btn:hover { background: #3a8eef; }
+.wallet-btn--disconnect { background: transparent; border-color: rgba(255,255,255,0.3); color: #f8fafc; }
+.wallet-btn--disconnect:hover { background: rgba(255,255,255,0.1); }
+
+.app-main { flex: 1; padding: 2rem 1.5rem; max-width: 1200px; margin: 0 auto; width: 100%; }
+
+/* =========================================================================
+ * Consumer View
+ * ========================================================================= */
+
+.consumer-view { }
+
+.consumer-view__intro { margin-bottom: 2rem; }
+.consumer-view__heading { font-size: 1.75rem; font-weight: 700; margin-bottom: 0.5rem; }
+.consumer-view__description { color: #4a5568; max-width: 700px; }
+
+.consumer-view__mock-notice {
+  margin-top: 0.75rem;
+  padding: 0.5rem 0.75rem;
+  background: #fffbeb;
+  border: 1px solid #f59e0b;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  color: #92400e;
+}
+
+.consumer-view__loading { color: #6b7280; padding: 1rem 0; }
+.consumer-view__error { padding: 0.75rem; background: #fef2f2; border: 1px solid #ef4444; border-radius: 6px; color: #b91c1c; }
+.consumer-view__timestamp { font-size: 0.75rem; color: #9ca3af; margin-top: 1.5rem; }
+
+.merchant-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
+}
+
+/* =========================================================================
+ * Trust Card
+ * Junquan: this is the centrepiece — please style heavily with Stitch design.
+ * ========================================================================= */
+
+.trust-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  position: relative;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+.trust-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+
+.trust-card--pending { border-color: #f59e0b; background: #fffdf5; }
+.trust-card--slashed { border-color: #ef4444; background: #fff5f5; }
+.trust-card--recovered { border-color: #22c55e; background: #f0fdf4; }
+
+.mock-banner {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  background: #fef3c7;
+  color: #92400e;
+  text-align: center;
+  font-size: 0.7rem;
+  padding: 0.25rem;
+  font-weight: 600;
+}
+
+.status-banner {
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-top: 1.5rem; /* account for mock-banner space */
+}
+.status-banner--pending { background: #fef3c7; color: #92400e; }
+.status-banner--slashed { background: #fef2f2; color: #b91c1c; }
+.status-banner--recovered { background: #f0fdf4; color: #166534; }
+
+.trust-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  /* Extra top margin if no status banner (but mock-banner might be there) */
+  margin-top: 0;
+}
+/* Shift header down when mock-banner is present */
+.trust-card .mock-banner ~ * { /* can't do this easily in CSS alone; handled by layout gap */ }
+
+.trust-card__name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a1a2e;
+  line-height: 1.3;
+}
+
+.trust-badge {
+  padding: 0.25rem 0.6rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.trust-badge--active { background: #dcfce7; color: #166534; }
+.trust-badge--warning { background: #fef3c7; color: #92400e; }
+.trust-badge--recovered { background: #dbeafe; color: #1e40af; }
+
+/* Health Score — the visual centrepiece */
+.trust-card__score-section { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; }
+
+.health-score {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  font-weight: 800;
+}
+.health-score__number { font-size: 4rem; line-height: 1; }
+.health-score__label { font-size: 1rem; color: #9ca3af; }
+.health-score__caption { font-size: 0.8rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; }
+
+.health-bar {
+  width: 100%;
+  height: 8px;
+  background: #f1f5f9;
+  border-radius: 4px;
+  overflow: hidden;
+}
+.health-bar__fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease, background-color 0.5s ease;
+}
+
+/* Bond section */
+.trust-card__bond { display: flex; flex-direction: column; gap: 0.5rem; }
+
+.bond-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+.bond-item:last-of-type { border-bottom: none; }
+
+.bond-item__label { font-size: 0.875rem; color: #6b7280; }
+.bond-item__value { font-size: 0.875rem; font-weight: 600; font-family: monospace; }
+.bond-item__value--staked { color: #059669; }
+
+.bond-undercollateral {
+  padding: 0.4rem 0.6rem;
+  background: #fef3c7;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  color: #92400e;
+}
+
+/* Formula explainer */
+.trust-card__formula {
+  border-top: 1px solid #f1f5f9;
+  padding-top: 0.75rem;
+}
+.trust-card__formula details summary {
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: #6b7280;
+  user-select: none;
+}
+.trust-card__formula details p {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 0.5rem;
+  line-height: 1.5;
+}
+.formula-note {
+  font-style: italic;
+  color: #9ca3af !important;
+  font-size: 0.75rem !important;
+}
+
+/* =========================================================================
+ * Admin Control Panel
+ * ========================================================================= */
+
+.admin-panel { display: flex; flex-direction: column; gap: 1.5rem; }
+
+.admin-panel__heading {
+  font-size: 1.75rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.admin-panel__badge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  background: #1a1a2e;
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.admin-panel__description { color: #4a5568; }
+.admin-panel__mock-notice { color: #92400e; font-size: 0.875rem; }
+
+/* State grid */
+.admin-state-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+
+.state-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  background: white;
+  position: relative;
+}
+.state-card--loading { color: #9ca3af; font-size: 0.875rem; }
+.state-card--pending { border-color: #f59e0b; background: #fffdf5; }
+.state-card--slashed { border-color: #ef4444; background: #fff5f5; }
+
+.state-card__name { font-weight: 700; font-size: 0.9rem; margin-bottom: 0.75rem; color: #1a1a2e; }
+
+.state-card__details { display: flex; flex-direction: column; gap: 0.4rem; font-size: 0.8rem; }
+.state-card__row { display: flex; justify-content: space-between; align-items: center; }
+.state-card__row dt { color: #6b7280; }
+.state-card__row dd { font-weight: 600; font-family: monospace; }
+.state-card__score { font-size: 1.1rem; font-weight: 700; }
+.state-card__mock { position: absolute; top: 0.5rem; right: 0.5rem; font-size: 0.65rem; color: #9ca3af; }
+
+.status-badge { padding: 0.15rem 0.5rem; border-radius: 20px; font-size: 0.75rem; font-weight: 700; }
+.status-badge--0 { background: #dcfce7; color: #166534; } /* ACTIVE */
+.status-badge--1 { background: #fef3c7; color: #92400e; } /* PENDING_SLASH */
+.status-badge--2 { background: #fef2f2; color: #b91c1c; } /* SLASHED */
+.status-badge--3 { background: #dbeafe; color: #1e40af; } /* CHALLENGED_OK */
+
+/* Controls */
+.admin-controls { border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; background: white; }
+.admin-controls__heading { font-size: 1.1rem; font-weight: 700; margin-bottom: 0.25rem; }
+.admin-controls__note { font-size: 0.85rem; color: #6b7280; margin-bottom: 1rem; }
+
+.control-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1rem; }
+
+.control-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  background: #f8fafc;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.control-card--warning { border-color: #fcd34d; background: #fffbeb; }
+.control-card--evidence { border-color: #93c5fd; background: #eff6ff; }
+
+.control-card__header { display: flex; gap: 0.75rem; align-items: flex-start; }
+.control-card__icon { font-size: 1.5rem; flex-shrink: 0; }
+.control-card__label { font-size: 0.9rem; font-weight: 700; line-height: 1.2; margin-bottom: 0.2rem; }
+.control-card__desc { font-size: 0.8rem; color: #6b7280; }
+.control-card__warning { font-size: 0.75rem; color: #92400e; margin-top: 0.25rem; }
+
+/* Buttons */
+.ctrl-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: opacity 0.15s, background 0.15s;
+  align-self: flex-start;
+}
+.ctrl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.ctrl-btn--primary { background: #3b82f6; color: white; }
+.ctrl-btn--primary:hover:not(:disabled) { background: #2563eb; }
+.ctrl-btn--warning { background: #f59e0b; color: white; }
+.ctrl-btn--warning:hover:not(:disabled) { background: #d97706; }
+.ctrl-btn--secondary { background: #6366f1; color: white; }
+.ctrl-btn--secondary:hover:not(:disabled) { background: #4f46e5; }
+.ctrl-btn--busy { opacity: 0.7; }
+
+/* Evidence input */
+.evidence-input-row { display: flex; flex-direction: column; gap: 0.25rem; }
+.evidence-label { font-size: 0.75rem; color: #6b7280; font-weight: 600; }
+.evidence-input {
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-family: monospace;
+  background: white;
+  width: 100%;
+}
+.evidence-input:focus { outline: 2px solid #3b82f6; border-color: transparent; }
+
+/* Refresh */
+.refresh-btn {
+  margin-top: 0.75rem;
+  padding: 0.4rem 1rem;
+  background: transparent;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: #4a5568;
+}
+.refresh-btn:hover { background: #f1f5f9; }
+
+/* Log */
+.admin-log { border: 1px solid #e2e8f0; border-radius: 12px; padding: 1.25rem; background: #1a1a2e; color: #e2e8f0; }
+.admin-log__heading { font-size: 0.9rem; font-weight: 700; margin-bottom: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.06em; }
+.admin-log__empty { color: #64748b; font-size: 0.85rem; }
+
+.log-list { list-style: none; display: flex; flex-direction: column; gap: 0.75rem; max-height: 300px; overflow-y: auto; }
+.log-entry { display: flex; flex-direction: column; gap: 0.15rem; border-left: 3px solid #374151; padding-left: 0.75rem; }
+.log-entry--error { border-color: #ef4444; }
+.log-entry__time { font-size: 0.7rem; color: #64748b; font-family: monospace; }
+.log-entry__action { font-size: 0.8rem; font-weight: 700; color: #93c5fd; }
+.log-entry__result { font-size: 0.75rem; font-family: monospace; color: #d1fae5; white-space: pre-wrap; word-break: break-all; }
+.log-entry--error .log-entry__result { color: #fca5a5; }
+
+/* Dependencies notes */
+.admin-deps {
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 1rem;
+  background: white;
+  font-size: 0.85rem;
+}
+.admin-deps summary { cursor: pointer; color: #6b7280; font-weight: 600; }
+.admin-deps ul { margin-top: 0.5rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem; color: #4a5568; }
+.admin-deps code { background: #f1f5f9; padding: 0.1rem 0.3rem; border-radius: 4px; font-size: 0.8rem; }
+
+.admin-loading { color: #9ca3af; padding: 0.5rem; }
+
+/* =========================================================================
+ * Utility
+ * ========================================================================= */
+code { font-family: ui-monospace, monospace; font-size: 0.875em; }
