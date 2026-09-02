@@ -10,6 +10,7 @@ use sui::test_scenario::{Self as ts};
 const ORACLE: address = @0xAD;
 const OWNER: address = @0xB0B;
 const CONSUMER: address = @0xC0;
+const ATTACKER: address = @0xBAD;
 
 fun setup(s: &mut ts::Scenario, bond: u64) {
     ts::next_tx(s, OWNER); merchant::register_merchant(b"Urban Retreat Spa", 95, ts::ctx(s));
@@ -50,12 +51,13 @@ fun counter_evidence_returns_active() {
 }
 
 #[test]
-fun finalize_after_window_pays_consumer() {
+fun finalize_cannot_redirect_payout() {
     let mut s = ts::begin(OWNER); setup(&mut s, 1_000_000_000); initiate(&mut s);
     ts::next_tx(&mut s, ORACLE); let mut c = ts::take_shared<Clock>(&s);
     clock::increment_for_testing(&mut c, merchant::demo_challenge_window_ms() + 1); ts::return_shared(c);
-    ts::next_tx(&mut s, CONSUMER); let mut m = ts::take_shared<Merchant>(&s); let c = ts::take_shared<Clock>(&s);
-    merchant::finalize_slash(&mut m, CONSUMER, &c, ts::ctx(&mut s));
+    // An arbitrary attacker is allowed to finalize, but cannot select themselves as recipient.
+    ts::next_tx(&mut s, ATTACKER); let mut m = ts::take_shared<Merchant>(&s); let c = ts::take_shared<Clock>(&s);
+    merchant::finalize_slash(&mut m, &c, ts::ctx(&mut s));
     assert!(merchant::status(&m) == merchant::status_slashed(), 0);
     assert!(merchant::bond_balance(&m) == 0, 1); ts::return_shared(c); ts::return_shared(m);
     ts::next_tx(&mut s, CONSUMER); let payout = ts::take_from_sender<Coin<SUI>>(&s);
@@ -95,5 +97,5 @@ fun blocks_late_evidence() {
 fun blocks_early_finalize() {
     let mut s = ts::begin(OWNER); setup(&mut s, 1); initiate(&mut s); ts::next_tx(&mut s, CONSUMER);
     let mut m = ts::take_shared<Merchant>(&s); let c = ts::take_shared<Clock>(&s);
-    merchant::finalize_slash(&mut m, CONSUMER, &c, ts::ctx(&mut s)); ts::return_shared(c); ts::return_shared(m); ts::end(s);
+    merchant::finalize_slash(&mut m, &c, ts::ctx(&mut s)); ts::return_shared(c); ts::return_shared(m); ts::end(s);
 }

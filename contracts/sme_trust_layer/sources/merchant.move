@@ -10,6 +10,8 @@ use sui::sui::SUI;
 
 // Replace these demo settings with governed configuration before production.
 const DEMO_ORACLE: address = @0xAD;
+/// Fixed demo payout destination. Production must replace this with a governed payout pool.
+const DEMO_PAYOUT_RECIPIENT: address = @0xC0;
 const CHALLENGE_WINDOW_MS: u64 = 259_200_000; // Production: 72 hours.
 const DEMO_CHALLENGE_WINDOW_MS: u64 = 72_000; // Demo: 72 seconds.
 const ABSOLUTE_FLOOR: u64 = 500_000_000; // 0.5 SUI in MIST.
@@ -110,13 +112,16 @@ public entry fun submit_counter_evidence(merchant: &mut Merchant, evidence_tx_ha
     merchant.status = STATUS_ACTIVE;
 }
 
-/// The SDD permits a recipient address for the mock; production should use a governed payout pool.
-public entry fun finalize_slash(merchant: &mut Merchant, recipient: address,
-    clock: &Clock, ctx: &mut TxContext) {
+/// Anyone may finalize, but the caller cannot choose or redirect the payout destination.
+/// Production should replace this fixed demo address with a governed payout pool.
+public entry fun finalize_slash(merchant: &mut Merchant, clock: &Clock, ctx: &mut TxContext) {
     assert!(merchant.status == STATUS_PENDING_SLASH, EInvalidStatus);
     assert!(clock::timestamp_ms(clock) - merchant.pending_slash_started_at_ms > DEMO_CHALLENGE_WINDOW_MS, EChallengeWindowOpen);
     let amount = min(merchant.pending_slash_amount, balance::value(&merchant.bond_balance));
-    if (amount > 0) transfer::public_transfer(coin::from_balance(balance::split(&mut merchant.bond_balance, amount), ctx), recipient);
+    if (amount > 0) transfer::public_transfer(
+        coin::from_balance(balance::split(&mut merchant.bond_balance, amount), ctx),
+        DEMO_PAYOUT_RECIPIENT,
+    );
     merchant.pending_slash_amount = 0; merchant.pending_slash_started_at_ms = 0; merchant.status = STATUS_SLASHED;
     event::emit(SlashFinalized { merchant_id: object::uid_to_inner(&merchant.id), amount_deducted: amount });
 }
@@ -131,6 +136,7 @@ fun min(a: u64, b: u64): u64 { if (a < b) a else b }
 fun max(a: u64, b: u64): u64 { if (a > b) a else b }
 
 public fun demo_oracle(): address { DEMO_ORACLE }
+public fun demo_payout_recipient(): address { DEMO_PAYOUT_RECIPIENT }
 public fun challenge_window_ms(): u64 { CHALLENGE_WINDOW_MS }
 public fun demo_challenge_window_ms(): u64 { DEMO_CHALLENGE_WINDOW_MS }
 public fun absolute_floor(): u64 { ABSOLUTE_FLOOR }
