@@ -137,17 +137,19 @@ function TrustWidget({ state }: { state: MerchantState | null }) {
           </div>
 
           {state.isMockData && (
-            <div style={{ fontSize: '0.65rem', color: '#f59e0b', background: '#fffbeb', padding: '3px 6px', borderRadius: 4 }}>
-              🧪 Testnet demo data
+            <div style={{ fontSize: '0.7rem', color: '#991b1b', background: '#fee2e2', padding: '6px 8px', border: '1px solid #ef4444', borderRadius: 4 }}>
+              🧪 EXPLICIT MOCK MODE — NOT LIVE BLOCKCHAIN DATA
             </div>
           )}
         </div>
       </div>
       <div className="trust-widget-footer">
-        <span>Verified on-chain · Object: {state.objectId.slice(0, 10)}…</span>
-        <a href={`https://testnet.suivision.xyz/object/${state.objectId}`} target="_blank" rel="noreferrer">
-          View on-chain →
-        </a>
+        <span>{state.isMockData ? 'Mock object reference' : 'Verified live on-chain'} · Object: {state.objectId.slice(0, 10)}…</span>
+        {!state.isMockData && (
+          <a href={`https://testnet.suivision.xyz/object/${state.objectId}`} target="_blank" rel="noreferrer">
+            View on-chain →
+          </a>
+        )}
       </div>
     </div>
   )
@@ -160,15 +162,20 @@ export default function CheckoutPage() {
   const [selectedIndex, setSelectedIndex] = useState(0)
   const [merchants, setMerchants] = useState<Record<string, MerchantState>>({})
   const [loading, setLoading] = useState(true)
+  const [readError, setReadError] = useState<string | null>(null)
 
   useEffect(() => {
     let cancelled = false
     async function fetch() {
       try {
         const data = await getAllMerchants()
-        if (!cancelled) { setMerchants(data); setLoading(false) }
-      } catch {
-        if (!cancelled) setLoading(false)
+        if (!cancelled) { setMerchants(data); setReadError(null); setLoading(false) }
+      } catch (err) {
+        if (!cancelled) {
+          setMerchants({})
+          setReadError(err instanceof Error ? err.message : String(err))
+          setLoading(false)
+        }
       }
     }
     fetch()
@@ -181,7 +188,7 @@ export default function CheckoutPage() {
 
   const isPending = state?.status === STATUS.PENDING_SLASH
   const isSlashed = state?.status === STATUS.SLASHED
-  const canProceed = !loading && !isPending && !isSlashed
+  const canProceed = !loading && !readError && Boolean(state) && !isPending && !isSlashed
 
   const subtotal = catalog.price
   const tax      = +(catalog.price * 0.06).toFixed(2)
@@ -274,9 +281,9 @@ export default function CheckoutPage() {
           <div style={{ padding: '1rem', background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 12, fontSize: '0.8rem', color: '#1e40af' }}>
             <div style={{ fontWeight: 700, marginBottom: '0.4rem' }}>🛡️ How you're protected by TrustLayer</div>
             <div style={{ lineHeight: 1.6 }}>
-              This merchant has locked a portion of their revenue as a <strong>bond on the Sui blockchain</strong>.
-              If they disappear or accumulate excessive refund complaints, the bond is automatically slashed
-              and redistributed to affected consumers. <strong>You can verify this yourself — no middleman needed.</strong>
+              TrustLayer displays the merchant's actual testnet bond and status from Sui.
+              Simulated risk inputs can open an on-chain pending-slash challenge window; this presentation demonstrates
+              the merchant challenge path, not completed consumer liquidation.
             </div>
           </div>
         </div>
@@ -284,6 +291,11 @@ export default function CheckoutPage() {
         {/* Right: Trust Badge + Payment Summary */}
         <div className="checkout-sidebar">
           <div className="checkout-section-title">Merchant Verification</div>
+          {readError && (
+            <div role="alert" style={{ padding: '0.8rem', marginBottom: '0.75rem', color: '#991b1b', background: '#fee2e2', border: '2px solid #ef4444', borderRadius: 8 }}>
+              <strong>LIVE SUI READ FAILED</strong><br />No mock data is being shown. {readError}
+            </div>
+          )}
           <TrustWidget state={state} />
 
           {isPending && (

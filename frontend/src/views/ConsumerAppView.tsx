@@ -7,6 +7,7 @@ export default function ConsumerAppView() {
   const [checkingIn, setCheckingIn] = useState(false)
   const [checkinComplete, setCheckinComplete] = useState(false)
   const [merchantState, setMerchantState] = useState<MerchantState | null>(null)
+  const [readError, setReadError] = useState<string | null>(null)
 
   useEffect(() => {
     let mounted = true
@@ -15,7 +16,9 @@ export default function ConsumerAppView() {
       .then(state => {
         if (mounted) setMerchantState(state)
       })
-      .catch(console.error)
+      .catch(err => {
+        if (mounted) setReadError(err instanceof Error ? err.message : String(err))
+      })
     return () => { mounted = false }
   }, [])
 
@@ -41,8 +44,8 @@ export default function ConsumerAppView() {
 
   return (
     <div className="mobile-view-wrapper">
-      <div className="phone-frame">
-        <div className="phone-notch"></div>
+        <div className="phone-frame">
+          <div className="phone-notch"></div>
 
         {/* Header */}
         <header className="app-header-mobile">
@@ -51,7 +54,17 @@ export default function ConsumerAppView() {
             <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--success)' }} />
             <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Sui Network</span>
           </div>
-        </header>
+          </header>
+
+          {readError ? (
+            <div role="alert" style={{ margin: '0.5rem', padding: '0.5rem', color: '#991b1b', background: '#fee2e2', border: '1px solid #ef4444', borderRadius: 8, fontSize: '0.7rem' }}>
+              LIVE SUI READ FAILED — no mock state shown.
+            </div>
+          ) : merchantState?.isMockData ? (
+            <div role="alert" style={{ margin: '0.5rem', padding: '0.5rem', color: '#991b1b', background: '#fee2e2', border: '1px solid #ef4444', borderRadius: 8, fontSize: '0.7rem' }}>
+              EXPLICIT MOCK MODE — NOT LIVE BLOCKCHAIN DATA
+            </div>
+          ) : null}
 
         {/* Content */}
         <div className="mobile-content scrollbar-thin">
@@ -91,10 +104,10 @@ export default function ConsumerAppView() {
 
               <div style={{ marginTop: '1rem' }}>
                 <button className="mobile-btn mobile-btn--danger">
-                  ⚠️ File Complaint / Refund Request
+                  🧪 Preview Complaint / Refund Request
                 </button>
                 <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.5rem', lineHeight: 1.4 }}>
-                  Files an on-chain report. If the merchant fails to respond within 72h, their bond will be slashed.
+                  Presentational control only. This button does not file an on-chain complaint.
                 </p>
               </div>
             </>
@@ -128,11 +141,11 @@ export default function ConsumerAppView() {
                   <div style={{ background: 'var(--bg-page)', padding: '1rem', borderRadius: '8px', marginBottom: '1.5rem', fontSize: '0.8rem' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
                       <span style={{ color: 'var(--text-muted)' }}>Action</span>
-                      <span style={{ fontWeight: 600 }}>Verify Attendance</span>
+                      <span style={{ fontWeight: 600 }}>Preview Attendance</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                       <span style={{ color: 'var(--text-muted)' }}>Network Fee</span>
-                      <span style={{ fontWeight: 600, color: 'var(--success)' }}>Sponsored (0 SUI)</span>
+                      <span style={{ fontWeight: 600, color: 'var(--text-muted)' }}>Not submitted</span>
                     </div>
                   </div>
 
@@ -141,7 +154,7 @@ export default function ConsumerAppView() {
                     onClick={handleApprove}
                     disabled={checkingIn}
                   >
-                    {checkingIn ? 'Signing Transaction...' : 'Approve Check-in'}
+                    {checkingIn ? 'Simulating approval…' : 'Simulate Check-in'}
                   </button>
                   <button 
                     style={{ width: '100%', padding: '0.8rem', background: 'transparent', border: 'none', color: 'var(--text-muted)', fontSize: '0.85rem', marginTop: '0.5rem', cursor: 'pointer' }}
@@ -156,8 +169,8 @@ export default function ConsumerAppView() {
                   <div style={{ width: 80, height: 80, background: 'var(--success-bg)', color: 'var(--success)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '3rem', margin: '0 auto 1.5rem' }}>
                     ✓
                   </div>
-                  <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Verified!</h2>
-                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>Your attendance has been recorded on the Sui blockchain.</p>
+                  <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Simulation Complete</h2>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '2rem' }}>No attendance transaction was submitted to Sui.</p>
                   <button className="mobile-btn mobile-btn--primary" onClick={() => { setScanned(false); setCheckinComplete(false); setActiveTab('home'); }}>
                     Done
                   </button>
@@ -168,14 +181,14 @@ export default function ConsumerAppView() {
 
           {activeTab === 'history' && (
             <div>
-              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>On-Chain History</h2>
+              <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '1rem' }}>Simulated History</h2>
               
               <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
                 {[1, 2, 3].map((_, i) => (
                   <div key={i} style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
                       <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Attendance Verified</span>
-                      <span style={{ fontSize: '0.75rem', color: 'var(--success)' }}>Confirmed</span>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Prototype</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' }}>
                       <span>1Fit Premium</span>

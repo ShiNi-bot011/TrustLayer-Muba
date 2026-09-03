@@ -7,7 +7,7 @@ export default function KioskView() {
     { id: '3', time: '15m ago', user: '0x1a...cc90 verified' },
   ])
 
-  // Mock live checkins
+  // Presentational activity feed only; no Sui transaction is submitted here.
   useEffect(() => {
     const timer = setInterval(() => {
       if (Math.random() > 0.7) {
@@ -30,10 +30,10 @@ export default function KioskView() {
         {/* Left Side: Branding & Feed */}
         <div className="kiosk-left">
           <h1 className="kiosk-title">Welcome to<br />1Fit Premium</h1>
-          <p className="kiosk-subtitle">Scan the QR code with your TrustLayer Wallet to check in. Your attendance will be securely recorded on the Sui blockchain.</p>
+          <p className="kiosk-subtitle">Presentation prototype: tap the simulated wallet scanner to preview a future attendance flow. This kiosk does not submit Sui transactions.</p>
 
           <div className="kiosk-live-feed">
-            <div className="kiosk-feed-title">🟢 Live On-Chain Check-Ins</div>
+            <div className="kiosk-feed-title">🧪 Simulated Check-In Activity — Not On-Chain</div>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {feed.map(item => (
                 <div key={item.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid var(--border)', paddingBottom: '0.5rem' }}>
@@ -52,8 +52,8 @@ export default function KioskView() {
               📱
             </div>
           </div>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Ready to Scan</h2>
-          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Point your camera at the QR code to verify your session.</p>
+          <h2 style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: '0.5rem' }}>Simulated Scanner</h2>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)' }}>Visual prototype only; no QR payload or blockchain write is active.</p>
         </div>
       </div>
     </div>

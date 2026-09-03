@@ -3,9 +3,7 @@
  */
 
 import { Transaction } from '@mysten/sui/transactions';
-
-export const PACKAGE_ID = '0x88f8473000a36652045c2253e4e2b0b9c6d93fa44fda61943580f2918ee07475';
-export const CLOCK_OBJECT_ID = '0x6';
+import { CLOCK_OBJECT_ID, PACKAGE_ID } from './demoConfig';
 
 /**
  * Build transaction to update health score and trailing prepaid revenue on-chain.

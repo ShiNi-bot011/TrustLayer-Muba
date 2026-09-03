@@ -10,29 +10,13 @@
  *   true  → return mock data fallback if network is unreachable.
  */
 
-// ---------------------------------------------------------------------------
-// Configuration
-// ---------------------------------------------------------------------------
+import {
+  ENABLE_EXPLICIT_MOCK_DATA,
+  MERCHANT_OBJECT_IDS,
+  SUI_JSON_RPC_URL,
+} from './demoConfig';
 
-/** Deployed contract package ID on Sui testnet. */
-export const PACKAGE_ID =
-  "0x88f8473000a36652045c2253e4e2b0b9c6d93fa44fda61943580f2918ee07475";
-
-/**
- * MOCK_MODE — false uses live Sui testnet on-chain reads.
- */
-export const MOCK_MODE = false;
-
-/**
- * Shared Merchant object IDs on Sui testnet.
- */
-export const MERCHANT_OBJECT_IDS: Record<string, string> = {
-  "Merchant A": "0x77b343276131947ae93218ae7d36e34ef3576c8cc9dc9377401af7c34e6e445e",
-  "Merchant B": "0x49aba03938aa9d99d5a9b090db555d3f31ab672a2dceb1406f4a3bad4233abca",
-};
-
-/** Sui testnet JSON-RPC endpoint */
-const SUI_TESTNET_RPC = "https://sui-testnet-rpc.publicnode.com";
+export const MOCK_MODE = ENABLE_EXPLICIT_MOCK_DATA;
 
 // ---------------------------------------------------------------------------
 // Status enum (mirrors the Move contract — do not change values)
@@ -122,7 +106,7 @@ export function computeRequiredBond(
 export async function getMerchantState(
   merchantLabel: string
 ): Promise<MerchantState> {
-  const objectId = MERCHANT_OBJECT_IDS[merchantLabel];
+  const objectId = MERCHANT_OBJECT_IDS[merchantLabel as keyof typeof MERCHANT_OBJECT_IDS];
   const isMockId = !objectId || objectId.startsWith("0x_PLACEHOLDER");
 
   if (MOCK_MODE || isMockId) {
@@ -133,7 +117,7 @@ export async function getMerchantState(
   }
 
   try {
-    const response = await fetch(SUI_TESTNET_RPC, {
+    const response = await fetch(SUI_JSON_RPC_URL, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -146,6 +130,10 @@ export async function getMerchantState(
         ],
       }),
     });
+
+    if (!response.ok) {
+      throw new Error(`Sui RPC returned HTTP ${response.status}`);
+    }
 
     const json = await response.json();
     const data = json?.result?.data;
@@ -181,10 +169,8 @@ export async function getMerchantState(
       isMockData: false,
     };
   } catch (err) {
-    console.warn(`[suiClient] Failed to read on-chain for ${merchantLabel}, falling back to local state:`, err);
-    const mock = MOCK_MERCHANTS[merchantLabel];
-    if (mock) return { ...mock, isMockData: true };
-    throw err;
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`LIVE SUI READ FAILED for ${merchantLabel}: ${message}`);
   }
 }
 
@@ -215,7 +201,7 @@ export function statusLabel(status: MerchantStatus): string {
     case STATUS.ACTIVE:
       return "Active";
     case STATUS.PENDING_SLASH:
-      return "⚠️ Under Review (72-Hour Challenge Window)";
+      return "⚠️ Under Review (72-Second Demo Challenge Window)";
     case STATUS.SLASHED:
       return "Bond Deducted for Consumer Payout";
     case STATUS.CHALLENGED_OK:
