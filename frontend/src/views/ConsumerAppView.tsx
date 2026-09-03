@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getMerchantState, type MerchantState } from '../lib/suiClient'
+import { getMerchantState, STATUS, statusLabel, type MerchantState } from '../lib/suiClient'
 
 export default function ConsumerAppView() {
   const [activeTab, setActiveTab] = useState<'home' | 'scanner' | 'history'>('home')
@@ -14,10 +14,16 @@ export default function ConsumerAppView() {
     // Fetch Merchant B (1Fit Premium) for the consumer's wallet view
     getMerchantState('Merchant B')
       .then(state => {
-        if (mounted) setMerchantState(state)
+        if (mounted) {
+          setMerchantState(state)
+          setReadError(null)
+        }
       })
       .catch(err => {
-        if (mounted) setReadError(err instanceof Error ? err.message : String(err))
+        if (mounted) {
+          setMerchantState(null)
+          setReadError(err instanceof Error ? err.message : String(err))
+        }
       })
     return () => { mounted = false }
   }, [])
@@ -29,6 +35,8 @@ export default function ConsumerAppView() {
     remaining: '5 months',
     healthScore: merchantState ? merchantState.healthScore : 0,
   }
+  const merchantStatus = merchantState ? statusLabel(merchantState.status) : 'Unavailable'
+  const merchantHealthy = merchantState?.status === STATUS.ACTIVE || merchantState?.status === STATUS.CHALLENGED_OK
 
   const handleScan = () => {
     setScanned(true)
@@ -51,8 +59,8 @@ export default function ConsumerAppView() {
         <header className="app-header-mobile">
           <div className="app-header-mobile__title">TrustLayer Wallet</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <div style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--success)' }} />
-            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Sui Network</span>
+            <div style={{ width: 8, height: 8, borderRadius: '50%', background: readError ? 'var(--danger)' : 'var(--success)' }} />
+            <span style={{ fontSize: '0.75rem', fontWeight: 600 }}>Sui Testnet Read</span>
           </div>
           </header>
 
@@ -72,7 +80,7 @@ export default function ConsumerAppView() {
             <>
               <div style={{ marginBottom: '0.5rem' }}>
                 <h2 style={{ fontSize: '1.25rem', fontWeight: 800 }}>My Packages</h2>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Protected by on-chain bonds</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Simulated package · merchant state read from Sui</p>
               </div>
 
               <div className="mobile-card">
@@ -81,8 +89,8 @@ export default function ConsumerAppView() {
                     <div className="mobile-card__title" style={{ marginBottom: '0.1rem' }}>{activePackage.gym}</div>
                     <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>{activePackage.name}</div>
                   </div>
-                  <div style={{ background: 'var(--success-bg)', color: 'var(--success)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700 }}>
-                    ACTIVE
+                  <div style={{ background: merchantHealthy ? 'var(--success-bg)' : 'var(--warning-bg)', color: merchantHealthy ? 'var(--success)' : 'var(--warning)', padding: '2px 8px', borderRadius: '12px', fontSize: '0.7rem', fontWeight: 700 }}>
+                    {merchantStatus}
                   </div>
                 </div>
 
@@ -94,17 +102,17 @@ export default function ConsumerAppView() {
                 <div style={{ background: 'var(--bg-page)', padding: '0.75rem', borderRadius: '8px' }}>
                   <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', marginBottom: '0.4rem' }}>
                     <span style={{ color: 'var(--text-muted)' }}>Merchant Health</span>
-                    <span style={{ color: 'var(--success)', fontWeight: 700 }}>{activePackage.healthScore}/100</span>
+                    <span style={{ color: merchantHealthy ? 'var(--success)' : 'var(--warning)', fontWeight: 700 }}>{activePackage.healthScore}/100</span>
                   </div>
                   <div style={{ width: '100%', height: '4px', background: 'var(--bg-sidebar)', borderRadius: '2px' }}>
-                    <div style={{ width: `${activePackage.healthScore}%`, height: '100%', background: 'var(--success)', borderRadius: '2px' }} />
+                    <div style={{ width: `${activePackage.healthScore}%`, height: '100%', background: merchantHealthy ? 'var(--success)' : 'var(--warning)', borderRadius: '2px' }} />
                   </div>
                 </div>
               </div>
 
               <div style={{ marginTop: '1rem' }}>
-                <button className="mobile-btn mobile-btn--danger">
-                  🧪 Preview Complaint / Refund Request
+                <button className="mobile-btn mobile-btn--danger" disabled title="Complaint submission is outside this demo">
+                  Complaint Demo Not Connected
                 </button>
                 <p style={{ fontSize: '0.7rem', color: 'var(--text-muted)', textAlign: 'center', marginTop: '0.5rem', lineHeight: 1.4 }}>
                   Presentational control only. This button does not file an on-chain complaint.
@@ -117,19 +125,20 @@ export default function ConsumerAppView() {
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: '1.1rem', fontWeight: 700 }}>Scan Kiosk QR</h2>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Verify your attendance on-chain</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Preview a simulated attendance flow — no Sui write</p>
               </div>
 
               {!scanned ? (
-                <div 
+                <button
+                  type="button"
                   onClick={handleScan}
-                  style={{ flex: 1, border: '2px dashed var(--accent)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--accent-dim)' }}
+                  style={{ flex: 1, width: '100%', color: 'inherit', border: '2px dashed var(--accent)', borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', background: 'var(--accent-dim)' }}
                 >
                   <div style={{ textAlign: 'center' }}>
                     <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>📷</div>
                     <div style={{ fontSize: '0.85rem', fontWeight: 600, color: 'var(--accent)' }}>Tap to simulate scanning</div>
                   </div>
-                </div>
+                </button>
               ) : !checkinComplete ? (
                 <div className="mobile-card" style={{ marginTop: 'auto', marginBottom: 'auto' }}>
                   <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
@@ -187,7 +196,7 @@ export default function ConsumerAppView() {
                 {[1, 2, 3].map((_, i) => (
                   <div key={i} style={{ background: 'var(--bg-card)', padding: '1rem', borderRadius: '12px', border: '1px solid var(--border)' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Attendance Verified</span>
+                      <span style={{ fontSize: '0.85rem', fontWeight: 600 }}>Simulated Attendance</span>
                       <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Prototype</span>
                     </div>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.75rem', color: 'var(--text-muted)' }}>

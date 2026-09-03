@@ -12,8 +12,10 @@ import { useState, useEffect } from 'react'
 import {
   getAllMerchants,
   STATUS,
+  statusLabel,
   type MerchantState,
 } from '../lib/suiClient'
+import { objectExplorerUrl } from '../lib/demoConfig'
 
 // ---------------------------------------------------------------------------
 // Merchant catalog (booking page content — mirrors the two on-chain merchants)
@@ -77,12 +79,20 @@ function TrustWidget({ state }: { state: MerchantState | null }) {
   const isActive  = state.status === STATUS.ACTIVE
   const isPending = state.status === STATUS.PENDING_SLASH
   const isSlashed = state.status === STATUS.SLASHED
+  const isRecovered = state.status === STATUS.CHALLENGED_OK
+  const hasBond = state.bondBalanceMist > BigInt(0)
 
-  const statusConfig = isActive
-    ? { icon: '✅', label: 'Verified & Protected', sub: 'Performance Bond secured on Sui blockchain', cls: '' }
+  const statusConfig = isActive && hasBond
+    ? { icon: '✅', label: 'Verified & Bonded', sub: 'Non-zero performance bond held by the Sui object', cls: '' }
+    : isActive
+    ? { icon: '⚠️', label: 'Active · Bond Not Funded', sub: 'No SUI bond is currently deposited', cls: 'trust-layer-widget--warning' }
     : isPending
     ? { icon: '⚠️', label: 'Under Review', sub: 'Challenge window open — proceed with caution', cls: 'trust-layer-widget--warning' }
-    : { icon: '🚫', label: 'Bond Deducted', sub: 'Merchant security deposit has been utilized', cls: 'trust-layer-widget--danger' }
+    : isRecovered
+    ? { icon: '✅', label: 'Challenge Accepted', sub: 'Merchant challenge was accepted on Sui', cls: '' }
+    : isSlashed
+    ? { icon: '🚫', label: 'Bond Deducted', sub: 'Merchant security deposit has been utilized', cls: 'trust-layer-widget--danger' }
+    : { icon: '❓', label: statusLabel(state.status), sub: 'Unknown contract status — payment remains disabled', cls: 'trust-layer-widget--danger' }
 
   const bondSui = (Number(state.bondBalanceMist) / 1e9).toFixed(2)
   const bondMyr = (Number(state.bondBalanceMist) / 1e9 * 10).toFixed(2)
@@ -96,8 +106,30 @@ function TrustWidget({ state }: { state: MerchantState | null }) {
         </span>
       </div>
       <div className="trust-widget-body">
+        <div className="trust-health-hero">
+          <div
+            className="trust-health-gauge"
+            style={{
+              background: `conic-gradient(${healthColor(state.healthScore)} ${state.healthScore * 3.6}deg, #e2e8f0 0deg)`,
+            }}
+            aria-label={`Merchant health score ${state.healthScore} out of 100`}
+          >
+            <div className="trust-health-gauge__inner">
+              <strong>{state.healthScore}</strong>
+              <span>/ 100</span>
+            </div>
+          </div>
+          <div className="trust-health-copy">
+            <span className="trust-health-copy__eyebrow">Merchant Health</span>
+            <strong style={{ color: healthColor(state.healthScore) }}>
+              {state.healthScore >= 80 ? 'Healthy' : state.healthScore >= 60 ? 'Monitor' : 'High Risk'}
+            </strong>
+            <span>Refreshed from the configured Sui object</span>
+          </div>
+        </div>
+
         <div className="trust-status-row">
-          <div className={`trust-status-icon trust-status-icon--${isActive ? 'active' : isPending ? 'warning' : isSlashed ? 'danger' : 'danger'}`}>
+          <div className={`trust-status-icon trust-status-icon--${(isActive && hasBond) || isRecovered ? 'active' : isPending || isActive ? 'warning' : 'danger'}`}>
             {statusConfig.icon}
           </div>
           <div className="trust-status-text">
@@ -108,7 +140,7 @@ function TrustWidget({ state }: { state: MerchantState | null }) {
 
         <div className="trust-metrics">
           <div className="trust-metric">
-            <span className="trust-metric__label">Bond Protected</span>
+            <span className="trust-metric__label">On-Chain Bond Balance</span>
             <span className="trust-metric__value" style={{ color: isActive ? '#16a34a' : '#d97706' }}>
               {bondSui} SUI <span style={{ color: '#9ca3af', fontWeight: 400, fontSize: '0.7rem' }}>(~RM {bondMyr})</span>
             </span>
@@ -146,7 +178,7 @@ function TrustWidget({ state }: { state: MerchantState | null }) {
       <div className="trust-widget-footer">
         <span>{state.isMockData ? 'Mock object reference' : 'Verified live on-chain'} · Object: {state.objectId.slice(0, 10)}…</span>
         {!state.isMockData && (
-          <a href={`https://testnet.suivision.xyz/object/${state.objectId}`} target="_blank" rel="noreferrer">
+          <a href={objectExplorerUrl(state.objectId)} target="_blank" rel="noreferrer">
             View on-chain →
           </a>
         )}
@@ -188,8 +220,6 @@ export default function CheckoutPage() {
 
   const isPending = state?.status === STATUS.PENDING_SLASH
   const isSlashed = state?.status === STATUS.SLASHED
-  const canProceed = !loading && !readError && Boolean(state) && !isPending && !isSlashed
-
   const subtotal = catalog.price
   const tax      = +(catalog.price * 0.06).toFixed(2)
   const total    = +(subtotal + tax).toFixed(2)
@@ -337,9 +367,8 @@ export default function CheckoutPage() {
 
             <button
               className="checkout-btn"
-              disabled={!canProceed}
-              style={{ opacity: (isPending || isSlashed) ? 0.5 : 1, filter: (isPending || isSlashed) ? 'grayscale(100%)' : 'none' }}
-              title={(isSlashed || isPending) ? 'Blocked by TrustLayer' : 'Proceed to payment'}
+              disabled
+              title={(isSlashed || isPending) ? 'Blocked by TrustLayer' : 'Payment integration is outside this demo'}
             >
               {loading ? (
                 <>Verifying merchant… <span className="spinner" /></>
@@ -348,12 +377,12 @@ export default function CheckoutPage() {
               ) : isPending ? (
                 '⚠️ Proceed with Caution'
               ) : (
-                'Proceed to Payment →'
+                'Payment Demo Not Connected'
               )}
             </button>
 
             <div className="checkout-secure-note">
-              🔒 Protected by TrustLayer · Sui Testnet
+              🔎 TrustLayer status read · Sui Testnet
             </div>
           </div>
         </div>

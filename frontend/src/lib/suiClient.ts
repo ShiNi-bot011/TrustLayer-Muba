@@ -203,7 +203,7 @@ export function statusLabel(status: MerchantStatus): string {
     case STATUS.PENDING_SLASH:
       return "⚠️ Under Review (72-Second Demo Challenge Window)";
     case STATUS.SLASHED:
-      return "Bond Deducted for Consumer Payout";
+      return "Bond Deducted to Demo Payout Recipient";
     case STATUS.CHALLENGED_OK:
       return "Recovered";
     default:

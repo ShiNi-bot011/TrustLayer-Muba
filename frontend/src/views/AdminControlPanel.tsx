@@ -6,7 +6,7 @@
  * while embedding collapsible Operator Demo Controls for hackathon pitch presentation.
  */
 
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { useCurrentAccount, useDAppKit } from '@mysten/dapp-kit-react'
 import { Transaction } from '@mysten/sui/transactions'
 import {
@@ -17,28 +17,6 @@ import {
   type MerchantState,
 } from '../lib/suiClient'
 
-// ---------------------------------------------------------------------------
-// Countdown Timer Component
-// ---------------------------------------------------------------------------
-function CountdownTimer({ initialSeconds = 72 }: { initialSeconds?: number }) {
-  const [timeLeft, setTimeLeft] = useState(initialSeconds)
-
-  useEffect(() => {
-    if (timeLeft <= 0) return
-    const timer = setInterval(() => {
-      setTimeLeft(prev => prev - 1)
-    }, 1000)
-    return () => clearInterval(timer)
-  }, [timeLeft])
-
-  if (timeLeft <= 0) {
-    return <span style={{ color: 'var(--danger)', fontWeight: 600 }}>00:00 (Window Expired)</span>
-  }
-
-  const mins = Math.floor(timeLeft / 60).toString().padStart(2, '0')
-  const secs = (timeLeft % 60).toString().padStart(2, '0')
-  return <span style={{ fontFamily: 'monospace', fontWeight: 600, color: 'var(--warning)' }}>{mins}:{secs}</span>
-}
 import {
   buildUpdateHealthScoreTx,
   buildInitiateSlashTx,
@@ -70,11 +48,14 @@ export default function AdminControlPanel() {
   const [merchantB, setMerchantB] = useState<MerchantState | null>(null)
   const [log, setLog] = useState<LogEntry[]>([])
   const [busy, setBusy] = useState(false)
+  const [refreshing, setRefreshing] = useState(false)
   const [readError, setReadError] = useState<string | null>(null)
   const [lastLiveRead, setLastLiveRead] = useState<Date | null>(null)
   const [operatorOpen, setOperatorOpen] = useState(true)
   const [evidenceHash, setEvidenceHash] = useState('0xREFUND_TX_PROOF_DEMO_9981')
   const [bondDepositSui, setBondDepositSui] = useState('1')
+  const busyRef = useRef(false)
+  const readRequestRef = useRef(0)
   const dAppKit = useDAppKit()
   const currentAccount = useCurrentAccount()
   const isAuthorizedWallet = currentAccount?.address.toLowerCase() === AUTHORIZED_DEMO_WALLET.toLowerCase()
@@ -93,21 +74,29 @@ export default function AdminControlPanel() {
   }, [])
 
   const fetchState = useCallback(async () => {
+    const requestId = ++readRequestRef.current
+    setRefreshing(true)
     try {
       const [a, b] = await Promise.all([
         getMerchantState('Merchant A'),
         getMerchantState('Merchant B'),
       ])
-      setMerchantA(a)
-      setMerchantB(b)
-      setReadError(null)
-      setLastLiveRead(new Date())
+      if (requestId === readRequestRef.current) {
+        setMerchantA(a)
+        setMerchantB(b)
+        setReadError(null)
+        setLastLiveRead(new Date())
+      }
     } catch (err) {
       const message = err instanceof Error ? err.message : String(err)
-      setMerchantA(null)
-      setMerchantB(null)
-      setReadError(message)
-      appendLog('Live Sui read', message, true)
+      if (requestId === readRequestRef.current) {
+        setMerchantA(null)
+        setMerchantB(null)
+        setReadError(message)
+        appendLog('Live Sui read', message, true)
+      }
+    } finally {
+      if (requestId === readRequestRef.current) setRefreshing(false)
     }
   }, [appendLog])
 
@@ -119,6 +108,7 @@ export default function AdminControlPanel() {
 
   const activeState = selectedMerchant === 'Merchant A' ? merchantA : merchantB
   const isExplicitMock = Boolean(merchantA?.isMockData || merchantB?.isMockData)
+  const hasConfirmedState = Boolean(activeState && !readError)
 
   // Every operator action below is a real Sui transaction. Scenario inputs are simulated.
   async function runAction(
@@ -127,7 +117,7 @@ export default function AdminControlPanel() {
     txBuilder: () => Transaction | Promise<Transaction>,
     successMessage: string
   ) {
-    if (busy) return
+    if (busyRef.current) return
     if (!isAuthorizedWallet) {
       appendLog(actionName, `Connect the authorized demo wallet ${AUTHORIZED_DEMO_WALLET}.`, true)
       return
@@ -136,6 +126,7 @@ export default function AdminControlPanel() {
       appendLog(actionName, 'A confirmed live Sui merchant state is required before writing.', true)
       return
     }
+    busyRef.current = true
     setBusy(true)
     appendLog(actionName, `Executing on ${targetLabel}…`)
     try {
@@ -164,6 +155,7 @@ export default function AdminControlPanel() {
     } catch (err) {
       appendLog(actionName, err instanceof Error ? err.message : String(err), true)
     } finally {
+      busyRef.current = false
       setBusy(false)
     }
   }
@@ -171,14 +163,16 @@ export default function AdminControlPanel() {
   // Calculate coverage %
   const bondSui = activeState ? Number(activeState.bondBalanceMist) / 1e9 : 0
   const reqSui  = activeState ? Number(activeState.requiredBondMist) / 1e9 : 0
-  const coveragePct = reqSui > 0 ? Math.min(100, Math.round((bondSui / reqSui) * 100)) : 100
+  const coveragePct = reqSui > 0 ? Math.min(100, Math.round((bondSui / reqSui) * 100)) : 0
   const canWrite = Boolean(isAuthorizedWallet && activeState && !activeState.isMockData && !readError && !busy)
   const depositMist = Number(bondDepositSui) * 1_000_000_000
   const validDeposit = Number.isFinite(depositMist) && depositMist > 0 && Number.isInteger(depositMist)
 
-  const statusCls = activeState?.status === STATUS.ACTIVE
+  const statusCls = !activeState
+    ? 'muted'
+    : activeState.status === STATUS.ACTIVE || activeState.status === STATUS.CHALLENGED_OK
     ? 'active'
-    : activeState?.status === STATUS.PENDING_SLASH
+    : activeState.status === STATUS.PENDING_SLASH
     ? 'warning'
     : 'danger'
 
@@ -187,13 +181,13 @@ export default function AdminControlPanel() {
       {/* Sidebar Navigation */}
       <aside className="portal-sidebar">
         <div className="portal-sidebar__section-label">Navigation</div>
-        <div className="portal-nav-item">
+        <div className="portal-nav-item portal-nav-item--disabled" aria-disabled="true" title="Outside this demo">
           <span className="portal-nav-item__icon">📊</span> Analytics
         </div>
-        <div className="portal-nav-item">
+        <div className="portal-nav-item portal-nav-item--disabled" aria-disabled="true" title="Outside this demo">
           <span className="portal-nav-item__icon">📅</span> Bookings & Classes
         </div>
-        <div className="portal-nav-item">
+        <div className="portal-nav-item portal-nav-item--disabled" aria-disabled="true" title="Outside this demo">
           <span className="portal-nav-item__icon">💳</span> Prepaid Memberships
         </div>
         <div className="portal-nav-item portal-nav-item--active">
@@ -202,27 +196,29 @@ export default function AdminControlPanel() {
             <span className="portal-nav-badge">1</span>
           )}
         </div>
-        <div className="portal-nav-item">
+        <div className="portal-nav-item portal-nav-item--disabled" aria-disabled="true" title="Zenoti is not integrated in this demo">
           <span className="portal-nav-item__icon">⚙️</span> Zenoti Settings
         </div>
 
         <hr className="portal-sidebar__divider" />
 
         <div className="portal-sidebar__section-label">Switch Merchant</div>
-        <div
-          className={`portal-nav-item ${selectedMerchant === 'Merchant A' ? 'portal-nav-item--active' : ''}`}
+        <button
+          type="button"
+          className={`portal-nav-item portal-nav-button ${selectedMerchant === 'Merchant A' ? 'portal-nav-item--active' : ''}`}
           onClick={() => setSelectedMerchant('Merchant A')}
-          style={{ cursor: 'pointer' }}
+          disabled={busy}
         >
           <span className="portal-nav-item__icon">🏋️</span> True Fitness (A)
-        </div>
-        <div
-          className={`portal-nav-item ${selectedMerchant === 'Merchant B' ? 'portal-nav-item--active' : ''}`}
+        </button>
+        <button
+          type="button"
+          className={`portal-nav-item portal-nav-button ${selectedMerchant === 'Merchant B' ? 'portal-nav-item--active' : ''}`}
           onClick={() => setSelectedMerchant('Merchant B')}
-          style={{ cursor: 'pointer' }}
+          disabled={busy}
         >
           <span className="portal-nav-item__icon">⚡</span> 1Fit Premium (B)
-        </div>
+        </button>
 
         <div style={{ marginTop: 'auto' }}>
           <div className="portal-merchant-chip">
@@ -248,8 +244,8 @@ export default function AdminControlPanel() {
             </p>
           </div>
           <div className="portal-topbar__actions">
-            <button className="portal-btn portal-btn--ghost" onClick={fetchState} disabled={busy}>
-              ↻ Refresh Sync
+            <button className="portal-btn portal-btn--ghost" onClick={fetchState} disabled={busy || refreshing}>
+              {refreshing ? 'Refreshing…' : '↻ Refresh Sui State'}
             </button>
             <button className="portal-btn portal-btn--accent" onClick={() => setOperatorOpen(!operatorOpen)}>
               ⚡ Operator Controls {operatorOpen ? '▲' : '▼'}
@@ -262,16 +258,18 @@ export default function AdminControlPanel() {
             role={readError || isExplicitMock ? 'alert' : 'status'}
             style={{
               marginBottom: '1rem', padding: '0.8rem 1rem', borderRadius: '8px',
-              border: `1px solid var(--${readError || isExplicitMock ? 'danger' : 'success'})`,
-              background: readError || isExplicitMock ? 'rgba(239,68,68,0.1)' : 'rgba(34,197,94,0.1)',
+              border: `1px solid var(--${readError || isExplicitMock ? 'danger' : hasConfirmedState ? 'success' : 'border-strong'})`,
+              background: readError || isExplicitMock ? 'rgba(239,68,68,0.1)' : hasConfirmedState ? 'rgba(34,197,94,0.1)' : 'var(--bg-elevated)',
             }}
           >
             {readError ? (
               <strong>🔴 LIVE SUI READ FAILED — no mock data is being shown. {readError}</strong>
             ) : isExplicitMock ? (
               <strong>🧪 EXPLICIT MOCK MODE — NOT LIVE BLOCKCHAIN DATA. Transaction controls are disabled.</strong>
-            ) : (
+            ) : hasConfirmedState ? (
               <strong>🟢 LIVE SUI TESTNET DATA {lastLiveRead ? `— verified ${lastLiveRead.toLocaleTimeString()}` : '— loading verification…'}</strong>
+            ) : (
+              <strong>⏳ LOADING SUI TESTNET DATA — values remain hidden until the read is confirmed.</strong>
             )}
           </div>
           {/* Top Metric Cards */}
@@ -304,16 +302,16 @@ export default function AdminControlPanel() {
                     />
                   </svg>
                   <div className="gauge-ring__text">
-                    <span className="gauge-ring__number">{activeState?.healthScore ?? 0}</span>
+                    <span className="gauge-ring__number">{activeState?.healthScore ?? '—'}</span>
                     <span className="gauge-ring__label">/ 100</span>
                   </div>
                 </div>
                 <div>
                   <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-primary)' }}>
-                    {(activeState?.healthScore ?? 0) >= 80 ? 'Optimal Performance' : 'Elevated Risk'}
+                    {!activeState ? 'Awaiting Confirmed State' : activeState.healthScore >= 80 ? 'Optimal Performance' : 'Elevated Risk'}
                   </div>
                   <div className="metric-card__sub" style={{ marginTop: '0.2rem' }}>
-                    Calculated off-chain from Zenoti check-ins & ticket velocity
+                    Current score field read from the configured Sui merchant object
                   </div>
                 </div>
               </div>
@@ -323,10 +321,10 @@ export default function AdminControlPanel() {
             <div className="metric-card">
               <div className="metric-card__label">Secured Performance Bond</div>
               <div className="metric-card__value text-success">
-                {formatSui(activeState?.bondBalanceMist ?? BigInt(0))}
+                {activeState ? formatSui(activeState.bondBalanceMist) : '—'}
               </div>
               <div className="metric-card__sub">
-                ~RM {(Number(activeState?.bondBalanceMist ?? 0) / 1e9 * 10).toFixed(2)} secured on-chain
+                {activeState ? `~RM ${(Number(activeState.bondBalanceMist) / 1e9 * 10).toFixed(2)} secured on-chain` : 'Waiting for live Sui read'}
               </div>
             </div>
 
@@ -334,7 +332,7 @@ export default function AdminControlPanel() {
             <div className="metric-card">
               <div className="metric-card__label">Required Bond Floor</div>
               <div className="metric-card__value">
-                {formatSui(activeState?.requiredBondMist ?? BigInt(0))}
+                {activeState ? formatSui(activeState.requiredBondMist) : '—'}
               </div>
               <div className="metric-card__sub">
                 Formula: Trailing Revenue × (100 - Health)%
@@ -350,10 +348,14 @@ export default function AdminControlPanel() {
                 </span>
               </div>
               <div className="metric-card__sub">
-                {activeState?.status === STATUS.ACTIVE
+                {!activeState
+                  ? 'Waiting for confirmed Sui read'
+                  : activeState.status === STATUS.ACTIVE
                   ? 'All verification checks passing'
-                  : activeState?.status === STATUS.PENDING_SLASH
-                  ? <span>Challenge window: <CountdownTimer /></span>
+                  : activeState.status === STATUS.PENDING_SLASH
+                  ? <span>72-second contract challenge window; refresh to observe current state</span>
+                  : activeState.status === STATUS.CHALLENGED_OK
+                  ? 'Merchant challenge accepted on Sui'
                   : 'Bond deduction finalized on Sui'}
               </div>
             </div>
@@ -365,28 +367,28 @@ export default function AdminControlPanel() {
             <div className="panel-card">
               <div className="panel-card__header">
                 <span className="panel-card__title">
-                  ⚡ Live Fulfillment & Event Stream
+                  ⚡ Demo Signal & On-Chain State Summary
                 </span>
-                <span className="panel-card__badge">Sui Events</span>
+                <span className="panel-card__badge">Source-labelled</span>
               </div>
               <div className="panel-card__body">
                 <div className="activity-list">
                   <div className="activity-item">
                     <div className="activity-icon activity-icon--success">✓</div>
                     <div className="activity-content">
-                      <div className="activity-content__title">Zenoti Check-In Event Sync</div>
-                      <div className="activity-content__meta">Recorded 30 days normal check-ins</div>
+                      <div className="activity-content__title">Simulated Operational Input</div>
+                      <div className="activity-content__meta">Presentation scenario only — no Zenoti sync or on-chain check-in history</div>
                     </div>
-                    <div className="activity-time">Just now</div>
+                    <div className="activity-time">Simulated</div>
                   </div>
 
                   <div className="activity-item">
                     <div className="activity-icon activity-icon--info">ℹ</div>
                     <div className="activity-content">
-                      <div className="activity-content__title">On-Chain Health Score Update</div>
-                      <div className="activity-content__meta">Score evaluated at {activeState?.healthScore ?? 92}/100</div>
+                      <div className="activity-content__title">Current On-Chain Health State</div>
+                      <div className="activity-content__meta">{activeState ? `Live object reports ${activeState.healthScore}/100` : 'Awaiting confirmed object data'}</div>
                     </div>
-                    <div className="activity-time">5m ago</div>
+                    <div className="activity-time">Live read</div>
                   </div>
 
                   {activeState?.status === STATUS.PENDING_SLASH && (
@@ -406,7 +408,7 @@ export default function AdminControlPanel() {
                     <div className="activity-icon activity-icon--muted">🔒</div>
                     <div className="activity-content">
                       <div className="activity-content__title">Shared Object Inspection</div>
-                      <div className="activity-content__meta">Object ID: {activeState?.objectId.slice(0, 16)}…</div>
+                      <div className="activity-content__meta">{activeState ? `Object ID: ${activeState.objectId.slice(0, 16)}…` : 'Awaiting configured object read'}</div>
                     </div>
                     <div className="activity-time">Live</div>
                   </div>
@@ -423,7 +425,7 @@ export default function AdminControlPanel() {
                 <div className="bond-detail-row">
                   <span className="bond-detail-row__label">Coverage Ratio</span>
                   <span className={`bond-detail-row__value ${coveragePct >= 100 ? 'bond-detail-row__value--green' : 'bond-detail-row__value--red'}`}>
-                    {coveragePct}%
+                    {activeState ? `${coveragePct}%` : '—'}
                   </span>
                 </div>
 
@@ -431,7 +433,7 @@ export default function AdminControlPanel() {
                   <div
                     className="bond-coverage-bar__fill"
                     style={{
-                      width: `${coveragePct}%`,
+                      width: activeState ? `${coveragePct}%` : '0%',
                       backgroundColor: coveragePct >= 100 ? 'var(--success)' : 'var(--danger)',
                     }}
                   />
@@ -445,7 +447,7 @@ export default function AdminControlPanel() {
                   <div className="bond-detail-row">
                     <span className="bond-detail-row__label">Trailing 30d Revenue</span>
                     <span className="bond-detail-row__value bond-detail-row__value--muted">
-                      {formatSui(activeState?.trailing30dRevenueMist ?? BigInt(0))}
+                      {activeState ? formatSui(activeState.trailing30dRevenueMist) : '—'}
                     </span>
                   </div>
                   <div className="bond-detail-row">
@@ -460,13 +462,13 @@ export default function AdminControlPanel() {
           {/* Collapsible Operator Controls for Pitch Presentation */}
           {operatorOpen && (
             <div className="operator-section">
-              <div className="operator-header" onClick={() => setOperatorOpen(!operatorOpen)}>
+              <button type="button" className="operator-header" onClick={() => setOperatorOpen(!operatorOpen)}>
                 <div className="operator-header__left">
                   <span className="operator-label">Pitch Demo</span>
                   <span className="operator-header__title">Authorized Testnet Transaction Controls</span>
                 </div>
                 <span className="operator-chevron operator-chevron--open">▲</span>
-              </div>
+              </button>
 
               <div className="operator-body">
                 <div
@@ -609,7 +611,7 @@ export default function AdminControlPanel() {
                         flex: 1,
                         background: 'var(--bg-input)',
                         border: '1px solid var(--border)',
-                        color: 'white',
+                        color: 'var(--text-primary)',
                         padding: '0.3rem 0.6rem',
                         borderRadius: '6px',
                         fontSize: '0.75rem',
