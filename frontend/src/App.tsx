@@ -17,7 +17,10 @@ function App() {
       <header className="role-nav">
         <div className="role-nav__brand">
           <div className="role-nav__logo">🛡️</div>
-          <span className="role-nav__name">SME Trust Layer</span>
+          <div>
+            <span className="role-nav__name">TrustLayer</span>
+            <span className="role-nav__context">MUBA transactional demo</span>
+          </div>
           <span className="role-nav__network">Sui Testnet</span>
         </div>
 
@@ -27,25 +30,29 @@ function App() {
             className={`role-tab ${roleMode === 'checkout' ? 'role-tab--active' : ''}`}
             onClick={() => setRoleMode('checkout')}
           >
-            🛒 Checkout (Phase 2)
+            <span aria-hidden="true">🛒</span>
+            <span>Checkout</span>
           </button>
           <button
             className={`role-tab ${roleMode === 'app' ? 'role-tab--active' : ''}`}
             onClick={() => setRoleMode('app')}
           >
-            📱 Consumer Wallet
+            <span aria-hidden="true">📱</span>
+            <span>Consumer Wallet</span>
           </button>
           <button
             className={`role-tab ${roleMode === 'kiosk' ? 'role-tab--active' : ''}`}
             onClick={() => setRoleMode('kiosk')}
           >
-            📟 iPad Kiosk (Phase 1)
+            <span aria-hidden="true">📟</span>
+            <span>Simulated Kiosk</span>
           </button>
           <button
             className={`role-tab ${roleMode === 'merchant' ? 'role-tab--active' : ''}`}
             onClick={() => setRoleMode('merchant')}
           >
-            📊 Merchant Portal
+            <span aria-hidden="true">📊</span>
+            <span>Merchant Portal</span>
           </button>
         </div>
 

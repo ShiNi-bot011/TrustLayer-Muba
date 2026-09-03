@@ -313,7 +313,7 @@ export default function AdminControlPanel() {
                     {(activeState?.healthScore ?? 0) >= 80 ? 'Optimal Performance' : 'Elevated Risk'}
                   </div>
                   <div className="metric-card__sub" style={{ marginTop: '0.2rem' }}>
-                    Calculated off-chain from Zenoti check-ins & ticket velocity
+                    Current score field read from the configured Sui merchant object
                   </div>
                 </div>
               </div>
@@ -365,28 +365,28 @@ export default function AdminControlPanel() {
             <div className="panel-card">
               <div className="panel-card__header">
                 <span className="panel-card__title">
-                  ⚡ Live Fulfillment & Event Stream
+                  ⚡ Demo Signal & On-Chain State Summary
                 </span>
-                <span className="panel-card__badge">Sui Events</span>
+                <span className="panel-card__badge">Source-labelled</span>
               </div>
               <div className="panel-card__body">
                 <div className="activity-list">
                   <div className="activity-item">
                     <div className="activity-icon activity-icon--success">✓</div>
                     <div className="activity-content">
-                      <div className="activity-content__title">Zenoti Check-In Event Sync</div>
-                      <div className="activity-content__meta">Recorded 30 days normal check-ins</div>
+                      <div className="activity-content__title">Simulated Operational Input</div>
+                      <div className="activity-content__meta">Presentation scenario only — no Zenoti sync or on-chain check-in history</div>
                     </div>
-                    <div className="activity-time">Just now</div>
+                    <div className="activity-time">Simulated</div>
                   </div>
 
                   <div className="activity-item">
                     <div className="activity-icon activity-icon--info">ℹ</div>
                     <div className="activity-content">
-                      <div className="activity-content__title">On-Chain Health Score Update</div>
-                      <div className="activity-content__meta">Score evaluated at {activeState?.healthScore ?? 92}/100</div>
+                      <div className="activity-content__title">Current On-Chain Health State</div>
+                      <div className="activity-content__meta">Live object reports {activeState?.healthScore ?? 0}/100</div>
                     </div>
-                    <div className="activity-time">5m ago</div>
+                    <div className="activity-time">Live read</div>
                   </div>
 
                   {activeState?.status === STATUS.PENDING_SLASH && (
@@ -609,7 +609,7 @@ export default function AdminControlPanel() {
                         flex: 1,
                         background: 'var(--bg-input)',
                         border: '1px solid var(--border)',
-                        color: 'white',
+                        color: 'var(--text-primary)',
                         padding: '0.3rem 0.6rem',
                         borderRadius: '6px',
                         fontSize: '0.75rem',

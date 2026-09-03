@@ -96,6 +96,28 @@ function TrustWidget({ state }: { state: MerchantState | null }) {
         </span>
       </div>
       <div className="trust-widget-body">
+        <div className="trust-health-hero">
+          <div
+            className="trust-health-gauge"
+            style={{
+              background: `conic-gradient(${healthColor(state.healthScore)} ${state.healthScore * 3.6}deg, #e2e8f0 0deg)`,
+            }}
+            aria-label={`Merchant health score ${state.healthScore} out of 100`}
+          >
+            <div className="trust-health-gauge__inner">
+              <strong>{state.healthScore}</strong>
+              <span>/ 100</span>
+            </div>
+          </div>
+          <div className="trust-health-copy">
+            <span className="trust-health-copy__eyebrow">Merchant Health</span>
+            <strong style={{ color: healthColor(state.healthScore) }}>
+              {state.healthScore >= 80 ? 'Healthy' : state.healthScore >= 60 ? 'Monitor' : 'High Risk'}
+            </strong>
+            <span>Refreshed from the configured Sui object</span>
+          </div>
+        </div>
+
         <div className="trust-status-row">
           <div className={`trust-status-icon trust-status-icon--${isActive ? 'active' : isPending ? 'warning' : isSlashed ? 'danger' : 'danger'}`}>
             {statusConfig.icon}
