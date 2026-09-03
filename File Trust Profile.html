@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+        tailwind.config = { 
+            darkMode: "class", 
+            theme: { 
+                extend: { 
+                    "colors": { 
+                        "surface-container-lowest": "#ffffff", "secondary": "#4f6073", "on-primary-fixed": "#00174b", 
+                        "surface-tint": "#0053db", "surface-container-low": "#eff4ff", "secondary-fixed": "#d2e4fb", 
+                        "surface-variant": "#d3e4fe", "surface-bright": "#f8f9ff", "on-primary-fixed-variant": "#003ea8", 
+                        "secondary-fixed-dim": "#b7c8de", "on-background": "#0b1c30", "on-tertiary": "#ffffff", 
+                        "surface-dim": "#cbdbf5", "on-primary-container": "#eeefff", "background": "#f8f9ff", 
+                        "inverse-surface": "#213145", "tertiary-fixed-dim": "#4edea3", "primary-fixed": "#dbe1ff", 
+                        "on-primary": "#ffffff", "on-tertiary-fixed": "#002113", "secondary-container": "#d2e4fb", 
+                        "inverse-on-surface": "#eaf1ff", "on-surface-variant": "#434655", "primary-fixed-dim": "#b4c5ff", 
+                        "on-secondary-fixed": "#0b1d2d", "on-error": "#ffffff", "on-secondary": "#ffffff", 
+                        "tertiary": "#006242", "on-secondary-container": "#556679", "primary-container": "#2563eb", 
+                        "tertiary-fixed": "#6ffbbe", "error-container": "#ffdad6", "outline-variant": "#c3c6d7", 
+                        "surface": "#f8f9ff", "on-tertiary-container": "#bdffdb", "on-secondary-fixed-variant": "#38485a", 
+                        "tertiary-container": "#007d55", "on-surface": "#0b1c30", "on-tertiary-fixed-variant": "#005236", 
+                        "primary": "#004ac6", "surface-container": "#e5eeff", "error": "#ba1a1a", "inverse-primary": "#b4c5ff", 
+                        "outline": "#737686", "surface-container-high": "#dce9ff", "on-error-container": "#93000a", 
+                        "surface-container-highest": "#d3e4fe" 
+                    }, 
+                    "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, 
+                    "spacing": { "xs": "4px", "md": "16px", "container-max": "1280px", "xl": "40px", "gutter": "24px", "lg": "24px", "margin-mobile": "16px", "sm": "8px", "base": "4px" }, 
+                    "fontFamily": { "title-md": ["Inter"], "body-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "display-lg": ["Inter"] }, 
+                    "fontSize": { "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }], "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }], "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }], "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } 
+                } 
+            } 
+        }
+    </script>
+    <style>
+        @layer base { 
+            html, body {
+                width: 100%;
+                min-height: 100%;
+                margin: 0;
+                padding: 0;
+                -webkit-tap-highlight-color: transparent;
+            } 
+            .pt-safe { padding-top: env(safe-area-inset-top, 0px); } 
+            .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } 
+        } 
+        ::-webkit-scrollbar { display: none; }
+        
+        /* Forcefully flatten the default native styles of all select elements */
+        select {
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md min-h-screen">
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div class="h-16 px-margin-mobile flex items-center gap-md">
+            <button type="button" class="w-11 h-11 flex items-center justify-center -ml-2 text-on-surface hover:bg-surface-variant/20 rounded-full transition-colors" onclick="history.back()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 class="font-title-md text-title-md flex-1 truncate">File A Trust Complaint</h1>
+            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative w-full pt-16 min-h-screen bg-surface">
+        <div class="flex flex-col w-full gap-gutter px-margin-mobile pb-safe">
+            <!-- Purchase Verification Card -->
+            <div class="mt-md p-md rounded-xl bg-tertiary-fixed text-on-tertiary-fixed flex items-start gap-sm shadow-[0_4px_6px_-1px_rgba(26,43,60,0.05),0_2px_4px_-2px_rgba(26,43,60,0.05)]">
+                <span class="material-symbols-outlined text-[20px] shrink-0 mt-xs" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                <div class="flex flex-col gap-xs">
+                    <span class="font-label-md text-label-md">Verified Purchase</span>
+                    <span class="font-body-md text-body-md font-medium">ABC Fitness Monthly Pass</span>
+                    <span class="font-label-sm text-label-sm text-on-tertiary-fixed-variant opacity-80 break-all">Tx: 0x8f3...a2b</span>
+                </div>
+            </div>
+
+            <!-- Main Form -->
+            <form class="flex flex-col gap-xl" onsubmit="event.preventDefault();">
+                <div class="flex flex-col gap-lg">
+                    <!-- Issue Category -->
+                    <div class="flex flex-col gap-sm">
+                        <label class="font-label-md text-label-md text-on-surface" for="category">Issue Category</label>
+                        <div class="relative">
+                            <select 
+                                id="category" 
+                                onchange="handleCategoryChange(this)"
+                                class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-md pr-xl rounded-lg shadow-[0_4px_6px_-1px_rgba(26,43,60,0.05),0_2px_4px_-2px_rgba(26,43,60,0.05)] focus:outline-none focus:ring-[3px] focus:ring-primary-fixed transition-shadow border border-[#E2E8F0] cursor-pointer" 
+                            >
+                                <option value="Gym Closed / Service Non-Delivery">Merchant Closed / Service Non-Delivery</option>
+                                <option value="Unexpected Charge / Billing Error">Unexpected Charge / Billing Error</option>
+                                <option value="Poor Quality / Not as Described">Poor Quality / Not as Described</option>
+                                <option value="Other">Other</option>
+                            </select>
+                            <span class="material-symbols-outlined absolute right-md top-1/2 -translate-y-1/2 text-secondary pointer-events-none">expand_more</span>
+                        </div>
+
+                        <!-- Dynamically expanding Other input box (hidden by default) -->
+                        <div id="other-category-container" class="hidden transition-all duration-300 pt-xs">
+                            <input 
+                                type="text" 
+                                id="other-category-input" 
+                                placeholder="Please specify the issue category..." 
+                                class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-md rounded-lg shadow-[0_4px_6px_-1px_rgba(26,43,60,0.05),0_2px_4px_-2px_rgba(26,43,60,0.05)] focus:outline-none focus:ring-[3px] focus:ring-primary-fixed border border-[#E2E8F0] placeholder:text-outline"
+                            />
+                        </div>
+                    </div>
+
+                    <!-- Description -->
+                    <div class="flex flex-col gap-sm">
+                        <label class="font-label-md text-label-md text-on-surface" for="description">Description of Issue</label>
+                        <textarea class="w-full bg-surface-container-lowest text-on-surface font-body-md text-body-md p-md rounded-lg shadow-[0_4px_6px_-1px_rgba(26,43,60,0.05),0_2px_4px_-2px_rgba(26,43,60,0.05)] focus:outline-none focus:ring-[3px] focus:ring-primary-fixed transition-shadow border border-[#E2E8F0] resize-none placeholder:text-outline" id="description" placeholder="Describe what happened..." rows="4"></textarea>
+                    </div>
+
+                    <!-- Upload File Area -->
+                    <div class="flex flex-col gap-sm">
+                        <span class="font-label-md text-label-md text-on-surface">Upload Proof / Receipts <span class="text-secondary font-normal">(Optional)</span></span>
+                        
+                        <!-- Hidden actual file input box -->
+                        <input type="file" id="file-upload" class="hidden" accept=".jpg,.png,.pdf" onchange="alert('File selected: ' + this.files[0].name)" />
+                        
+                        <button class="w-full flex flex-col items-center justify-center p-xl gap-sm rounded-xl bg-surface-container-low border border-dashed border-outline-variant hover:bg-surface-container active:bg-surface-variant/40 transition-colors text-secondary cursor-pointer" type="button" onclick="document.getElementById('file-upload').click()">
+                            <div class="w-12 h-12 rounded-full bg-secondary-container text-on-secondary-container flex items-center justify-center mb-sm">
+                                <span class="material-symbols-outlined text-[24px]">upload_file</span>
+                            </div>
+                            <span class="font-label-md text-label-md text-on-surface">Tap to upload files</span>
+                            <span class="font-label-sm text-label-sm">JPG, PNG, or PDF up to 5MB</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Submit Section -->
+                <div class="pt-md pb-xl">
+                    <button onclick="window.location.href='Complaint Registered.html'" class="w-full bg-primary hover:bg-primary/90 text-on-primary font-title-md text-title-md py-md px-lg rounded-full flex items-center justify-center gap-sm shadow-[0_4px_6px_-1px_rgba(26,43,60,0.1),0_2px_4px_-2px_rgba(26,43,60,0.05)] active:scale-[0.98] transition-all cursor-pointer" type="submit">
+                        <span>Submit Complaint to Network</span>
+                        <span class="material-symbols-outlined text-[20px]">arrow_forward</span>
+                    </button>
+                    <p class="font-label-sm text-label-sm text-secondary text-center mt-md px-md">
+                        By submitting, you agree to the decentralized dispute resolution protocol. Your claim will be reviewed by independent auditors.
+                    </p>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function handleCategoryChange(selectElement) {
+            const container = document.getElementById('other-category-container');
+            const input = document.getElementById('other-category-input');
+            
+            if (selectElement.value === 'Other') {
+                container.classList.remove('hidden');
+                input.setAttribute('required', 'true');
+                input.focus();
+            } else {
+                container.classList.add('hidden');
+                input.removeAttribute('required');
+                input.value = ''; // Clear the filled content when leaving to avoid accidental submission
+            }
+        }
+    </script>
+</body>
+</html>

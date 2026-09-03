@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script id="tailwind-config">
+        tailwind.config = { 
+            darkMode: "class", 
+            theme: { 
+                extend: { 
+                    "colors": { 
+                        "surface-container-lowest": "#ffffff", "secondary": "#4f6073", "on-primary-fixed": "#00174b", 
+                        "surface-tint": "#0053db", "surface-container-low": "#eff4ff", "secondary-fixed": "#d2e4fb", 
+                        "surface-variant": "#d3e4fe", "surface-bright": "#f8f9ff", "on-primary-fixed-variant": "#003ea8", 
+                        "secondary-fixed-dim": "#b7c8de", "on-background": "#0b1c30", "on-tertiary": "#ffffff", 
+                        "surface-dim": "#cbdbf5", "on-primary-container": "#eeefff", "background": "#f8f9ff", 
+                        "inverse-surface": "#213145", "tertiary-fixed-dim": "#4edea3", "primary-fixed": "#dbe1ff", 
+                        "on-primary": "#ffffff", "on-tertiary-fixed": "#002113", "secondary-container": "#d2e4fb", 
+                        "inverse-on-surface": "#eaf1ff", "on-surface-variant": "#434655", "primary-fixed-dim": "#b4c5ff", 
+                        "on-secondary-fixed": "#0b1d2d", "on-error": "#ffffff", "on-secondary": "#ffffff", 
+                        "tertiary": "#006242", "on-secondary-container": "#556679", "primary-container": "#2563eb", 
+                        "tertiary-fixed": "#6ffbbe", "error-container": "#ffdad6", "outline-variant": "#c3c6d7", 
+                        "surface": "#f8f9ff", "on-tertiary-container": "#bdffdb", "on-secondary-fixed-variant": "#38485a", 
+                        "tertiary-container": "#007d55", "on-surface": "#0b1c30", "on-tertiary-fixed-variant": "#005236", 
+                        "primary": "#004ac6", "surface-container": "#e5eeff", "error": "#ba1a1a", "inverse-primary": "#b4c5ff", 
+                        "outline": "#737686", "surface-container-high": "#dce9ff", "on-error-container": "#93000a", 
+                        "surface-container-highest": "#d3e4fe" 
+                    }, 
+                    "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" }, 
+                    "spacing": { "xs": "4px", "md": "16px", "container-max": "1280px", "xl": "40px", "gutter": "24px", "lg": "24px", "margin-mobile": "16px", "sm": "8px", "base": "4px" }, 
+                    "fontFamily": { "title-md": ["Inter"], "body-lg": ["Inter"], "headline-lg-mobile": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"], "headline-lg": ["Inter"], "label-sm": ["Inter"], "display-lg": ["Inter"] }, 
+                    "fontSize": { "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }], "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }], "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }], "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }], "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }], "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }], "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }], "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }] } 
+                } 
+            } 
+        }
+    </script>
+
+    <style>
+        @layer base { 
+            html, body {
+                width: 100%;
+                min-height: 100%;
+                margin: 0;
+                padding: 0;
+                overflow-y: auto !important;
+                -webkit-overflow-scrolling: touch;
+                -webkit-tap-highlight-color: transparent;
+            } 
+            .pt-safe { padding-top: env(safe-area-inset-top, 0px); } 
+            .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } 
+        } 
+        ::-webkit-scrollbar { display: none; }
+
+        /* Complete keyframe animation support */
+        @keyframes shimmer {
+            100% { transform: translateX(100%); }
+        }
+        @keyframes customPulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.15; transform: scale(1.08); }
+        }
+    </style>
+</head>
+
+<body class="bg-surface text-on-surface font-body-md">
+    <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl pt-safe shadow-[0_1px_8px_rgba(0,0,0,0.04)]">
+        <div class="h-16 px-margin-mobile flex items-center gap-md">
+            <button type="button" class="w-11 h-11 flex items-center justify-center -ml-2 text-on-surface hover:bg-surface-variant/20 rounded-full transition-colors" onclick="history.back()">
+                <span class="material-symbols-outlined">arrow_back</span>
+            </button>
+            <h1 class="font-title-md text-title-md flex-1 truncate">File A Trust Complaint</h1>
+            <div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                <span class="material-symbols-outlined text-on-primary text-[18px]">person</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="relative w-full pt-16 min-h-screen bg-surface flex flex-col">
+        <!-- Change the container height to flex-fill to avoid the double scrolling issue on iOS/mobile. -->
+        <div class="flex flex-col flex-1 w-full px-margin-mobile pb-margin-mobile justify-between">
+            
+            <div class="flex flex-col items-center justify-center flex-1 py-xl">
+                <!-- Dynamic Ping / Pulse Icon Area -->
+                <div class="relative w-24 h-24 mb-xl">
+                    <div class="absolute inset-0 bg-tertiary-fixed rounded-full opacity-20 animate-[ping_2s_cubic-bezier(0,0,0.2,1)_infinite]"></div>
+                    <div class="absolute inset-0 bg-tertiary-fixed rounded-full opacity-40 animate-[customPulse_3s_ease-in-out_infinite]"></div>
+                    <div class="relative w-full h-full bg-tertiary text-on-tertiary rounded-full flex items-center justify-center shadow-[0_8px_16px_-4px_rgba(0,98,66,0.2)]">
+                        <span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                    </div>
+                </div>
+
+                <h2 class="font-headline-lg-mobile text-headline-lg-mobile text-on-surface text-center mb-xl">Complaint Registered on Sui Network</h2>
+                
+                <!-- Card Container -->
+                <div class="w-full bg-surface-container-highest rounded-xl p-lg shadow-[0_4px_6px_-1px_rgba(26,43,60,0.05),_0_2px_4px_-2px_rgba(26,43,60,0.05)] mb-lg relative overflow-hidden">
+                    <div class="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/4 pointer-events-none"></div>
+                    <div class="flex flex-col gap-md relative z-10">
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-md text-label-md text-on-surface-variant">Complaint ID</span>
+                            <span class="font-body-md text-body-md text-on-surface font-medium tracking-wide">#CMP-00241</span>
+                        </div>
+                        <div class="h-[1px] w-full bg-outline-variant/30"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-md text-label-md text-on-surface-variant">Merchant</span>
+                            <span class="font-body-md text-body-md text-on-surface font-medium">ABC Fitness</span>
+                        </div>
+                        <div class="h-[1px] w-full bg-outline-variant/30"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-md text-label-md text-on-surface-variant">Current Status</span>
+                            <div class="flex items-center gap-xs bg-tertiary-fixed/20 px-sm py-0.5 rounded-full">
+                                <span class="w-2 h-2 rounded-full bg-tertiary animate-pulse"></span>
+                                <span class="font-label-sm text-label-sm text-tertiary-container">Under Review</span>
+                            </div>
+                        </div>
+                        <div class="h-[1px] w-full bg-outline-variant/30"></div>
+                        <div class="flex justify-between items-center">
+                            <span class="font-label-md text-label-md text-on-surface-variant">Timestamp</span>
+                            <span class="font-body-md text-body-md text-on-surface font-medium">2026-09-01 17:05</span>
+                        </div>
+                    </div>
+                </div>
+
+                <p class="font-body-md text-body-md text-on-surface-variant text-center px-md">Your complaint has been logged on-chain (Tx: 0x8f3...a2b). It will be aggregated into ABC Fitness's dynamic trust evaluation within 1 block.</p>
+            </div>
+
+            <!-- Bottom Actions -->
+            <div class="flex flex-col gap-md pt-lg pb-safe">
+                <button onclick="window.location.href='Trust Profile.html'" type="button" class="w-full bg-transparent hover:bg-primary/10 active:bg-primary/20 text-primary font-label-md text-label-md py-3 px-6 rounded-lg border border-primary select-none">
+                    Return to Merchant Profile
+                </button>                
+                <button onclick="location.href='Fitbook Checkout.html'" type="button" class="w-full bg-primary hover:bg-primary/90 text-on-primary font-label-md text-label-md py-3 px-6 rounded-lg transition-all shadow-[0_4px_6px_-1px_rgba(0,74,198,0.2)] hover:shadow-[0_6px_12px_-2px_rgba(0,74,198,0.3)] relative overflow-hidden group">
+                    <span class="relative z-10 flex items-center justify-center gap-sm">
+                        Back to Home
+                        <span class="material-symbols-outlined text-[18px] group-hover:translate-x-1 transition-transform">arrow_forward</span>
+                    </span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full group-hover:animate-[shimmer_1.5s_infinite]"></div>
+                </button>
+            </div>
+
+        </div>
+    </main>
+</body>
+</html>

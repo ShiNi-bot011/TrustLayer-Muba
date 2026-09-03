@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "inverse-primary": "#b4c5ff", "surface-tint": "#0053db", "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#005236", "on-tertiary": "#ffffff", "tertiary-fixed-dim": "#4edea3",
+            "secondary-fixed-dim": "#b7c8de", "surface-bright": "#f8f9ff", "surface-container": "#e5eeff",
+            "inverse-on-surface": "#eaf1ff", "background": "#f8f9ff", "error-container": "#ffdad6",
+            "on-secondary-fixed": "#0b1d2d", "on-primary": "#ffffff", "primary": "#004ac6",
+            "on-secondary-fixed-variant": "#38485a", "on-primary-fixed-variant": "#003ea8", "error": "#ba1a1a",
+            "on-tertiary-container": "#bdffdb", "secondary-fixed": "#d2e4fb", "inverse-surface": "#213145",
+            "on-background": "#0b1c30", "surface-container-low": "#eff4ff", "surface-container-highest": "#d3e4fe",
+            "on-error": "#ffffff", "on-surface-variant": "#434655", "on-secondary-container": "#556679",
+            "secondary": "#4f6073", "secondary-container": "#d2e4fb", "on-surface": "#0b1c30",
+            "on-primary-container": "#eeefff", "tertiary-container": "#007d55", "outline": "#737686",
+            "on-primary-fixed": "#00174b", "primary-fixed-dim": "#b4c5ff", "tertiary": "#006242",
+            "surface-container-high": "#dce9ff", "on-secondary": "#ffffff", "surface": "#f8f9ff",
+            "tertiary-fixed": "#6ffbbe", "outline-variant": "#c3c6d7", "on-tertiary-fixed": "#002113",
+            "surface-dim": "#cbdbf5", "primary-fixed": "#dbe1ff", "primary-container": "#2563eb",
+            "on-error-container": "#93000a", "surface-variant": "#d3e4fe"
+          },
+          "borderRadius": { "DEFAULT": "0.25rem", "lg": "0.5rem", "xl": "0.75rem", "full": "9999px" },
+          "spacing": { "xl": "40px", "lg": "24px", "sm": "8px", "gutter": "24px", "md": "16px", "margin-mobile": "16px", "base": "4px", "container-max": "1280px", "xs": "4px" },
+          "fontFamily": { "headline-lg-mobile": ["Inter"], "display-lg": ["Inter"], "label-sm": ["Inter"], "body-md": ["Inter"], "label-md": ["Inter"], "headline-lg": ["Inter"], "body-lg": ["Inter"], "title-md": ["Inter"] },
+          "fontSize": {
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base { 
+      body { -webkit-tap-highlight-color: transparent; overscroll-behavior-y: contain; } 
+      .pb-safe { padding-bottom: env(safe-area-inset-bottom, 0px); } 
+      .pt-safe { padding-top: env(safe-area-inset-top, 0px); } 
+    }
+    ::-webkit-scrollbar { display: none; }
+  </style>
+</head>
+
+<body class="bg-background font-body-md text-on-background min-h-screen">
+  <!-- Header -->
+  <header class="fixed top-0 w-full z-40 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+    <div class="h-16 px-margin-mobile flex items-center gap-md">
+      <button class="w-10 h-10 -ml-2 flex items-center justify-center text-on-surface hover:bg-surface-container rounded-full transition-colors" onclick="history.back()">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div class="flex items-center gap-sm">
+        <h1 class="font-title-md text-title-md text-on-surface">Checkout Flow</h1>
+      </div>
+      <div class="ml-auto w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-primary text-[18px]">lock</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Area -->
+  <main class="pt-16 pb-28 min-h-screen bg-surface">
+    <div class="flex flex-col w-full px-margin-mobile gap-lg">
+      
+      <!-- Order Summary Section -->
+      <div class="mt-md bg-surface-container-lowest rounded-xl shadow-sm overflow-hidden flex flex-col">
+        <button class="w-full p-md flex items-center justify-between text-left focus:outline-none hover:bg-surface-container-low transition-colors group" onclick="document.getElementById('order-details').classList.toggle('hidden'); this.querySelector('.chevron').classList.toggle('rotate-180')">
+          <div>
+            <h2 class="font-title-md text-title-md text-on-surface">Order Summary</h2>
+            <p class="font-body-md text-body-md text-on-surface-variant">2 items • RM 150.00</p>
+          </div>
+          <span class="material-symbols-outlined text-on-surface-variant transition-transform duration-200 chevron">expand_more</span>
+        </button>
+        <div class="hidden px-md pb-md flex-col gap-md" id="order-details">
+          <div class="h-px w-full bg-outline-variant/30 mb-sm"></div>
+          <div class="flex items-center gap-md">
+            <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary">fitness_center</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-label-md text-label-md text-on-surface truncate">Premium Gym Membership</h3>
+              <p class="font-body-md text-body-md text-on-surface-variant">1 Month Pass</p>
+            </div>
+            <div class="font-label-md text-label-md text-on-surface text-right">RM 89.00</div>
+          </div>
+          <div class="flex items-center gap-md">
+            <div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-primary">watch</span>
+            </div>
+            <div class="flex-1 min-w-0">
+              <h3 class="font-label-md text-label-md text-on-surface truncate">Pro Fitness Tracker</h3>
+              <p class="font-body-md text-body-md text-on-surface-variant">Midnight Black</p>
+            </div>
+            <div class="font-label-md text-label-md text-on-surface text-right">RM 61.00</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Info Section (Editable) -->
+      <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm flex flex-col gap-sm">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-sm">
+            <span class="material-symbols-outlined text-primary shrink-0">account_circle</span>
+            <h3 class="font-label-md text-label-md text-on-surface">Contact Information</h3>
+          </div>
+          <button id="edit-contact-btn" onclick="toggleContactEdit()" class="text-primary font-label-md text-label-md hover:underline focus:outline-none">Edit</button>
+        </div>
+
+        <!-- Read-only View -->
+        <div id="contact-display-view" class="pl-8 flex flex-col gap-xs">
+          <p id="display-email" class="font-body-md text-body-md text-on-surface-variant">alex.consumer@example.com</p>
+          <p id="display-phone" class="font-body-md text-body-md text-on-surface-variant">+60 12-345 6789</p>
+        </div>
+
+        <!-- Edit Form -->
+        <div id="contact-edit-view" class="pl-8 flex flex-col gap-sm hidden">
+          <div>
+            <label class="block font-label-sm text-on-surface-variant mb-1">Email Address</label>
+            <input id="input-email" type="email" value="alex.consumer@example.com" class="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-3 py-1.5 text-on-surface font-body-md focus:outline-none focus:border-primary" />
+          </div>
+          <div>
+            <label class="block font-label-sm text-on-surface-variant mb-1">Phone Number</label>
+            <input id="input-phone" type="tel" value="+60 12-345 6789" class="w-full bg-surface-container-low border border-outline-variant/50 rounded-lg px-3 py-1.5 text-on-surface font-body-md focus:outline-none focus:border-primary" />
+          </div>
+          <div class="flex justify-end gap-sm mt-xs">
+            <button onclick="toggleContactEdit()" class="px-3 py-1 rounded-full font-label-sm text-on-surface-variant hover:bg-surface-container">Cancel</button>
+            <button onclick="saveContactInfo()" class="px-4 py-1 rounded-full font-label-sm text-on-primary bg-primary hover:bg-primary/90">Save</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Merchant Location Section -->
+      <div class="bg-surface-container-lowest p-md rounded-xl shadow-sm flex items-start gap-md">
+        <span class="material-symbols-outlined text-primary shrink-0 mt-xs">storefront</span>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between">
+            <span class="font-label-sm text-on-surface-variant uppercase tracking-wider block">Redemption Location</span>
+            <button class="text-primary font-label-md text-label-md hover:underline focus:outline-none">Change</button>
+          </div>
+          <h3 class="font-label-md text-label-md text-on-surface mt-xs">ABC Fitness (Johor Bahru Branch)</h3>
+          <p class="font-body-md text-body-md text-on-surface-variant mt-xs">Jalan Skudai, 81300 Johor Bahru, Johor</p>
+          <div class="flex items-center gap-xs text-tertiary font-label-sm mt-xs">
+            <span class="material-symbols-outlined text-[16px]">check_circle</span>
+            <span>Valid for pass redemption at this location</span> 
+          </div>
+        </div>
+      </div>
+
+      <!-- Trust Widget (Merchant Health - High Risk State) -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-[0_4px_6px_-1px_rgba(26,43,60,0.05)] p-lg flex flex-col items-center gap-md relative overflow-hidden group">
+        <div class="absolute inset-0 bg-gradient-to-br from-error-container/20 via-transparent to-transparent pointer-events-none"></div>
+        <div class="flex w-full justify-between items-center z-10">
+          <h3 class="font-title-md text-title-md text-on-surface">Merchant Health</h3>
+          <div class="bg-error-container px-sm py-xs rounded-full flex items-center gap-xs">
+            <span class="material-symbols-outlined text-[16px] text-error">warning</span>
+            <span class="font-label-sm text-label-sm text-error">High Risk</span>
+          </div>
+        </div>
+
+        <!-- Gauge Section -->
+        <div class="relative w-32 h-32 flex items-center justify-center my-sm z-10">
+          <svg class="absolute inset-0 w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+            <circle class="stroke-surface-container-high" cx="50" cy="50" fill="none" r="45" stroke-linecap="round" stroke-width="8"></circle>
+            <circle class="drop-shadow-md" cx="50" cy="50" fill="none" r="45" stroke-dasharray="282.7" stroke-dashoffset="175.2" stroke-linecap="round" stroke-width="8" style="stroke: #ba1a1a;"></circle>
+          </svg>
+          <div class="flex flex-col items-center">
+            <span class="font-display-lg text-display-lg text-error tracking-tighter">38</span>
+            <span class="font-label-sm text-label-sm text-error uppercase tracking-wider">/ 100</span>
+          </div>
+        </div>
+
+        <div class="flex flex-col items-center gap-xs z-10">
+          <div class="px-md py-xs rounded-full flex items-center gap-xs bg-error-container text-error">
+            <span class="material-symbols-outlined text-[18px]">warning</span>
+            <span class="font-label-md text-label-md">Status: Under Review</span>
+          </div>
+        </div>
+
+        <p class="font-body-md text-body-md text-on-surface-variant text-center mt-xs z-10 max-w-[280px]">
+          <strong class="text-error">Caution:</strong> Unresolved consumer refund claims detected on-chain.
+        </p>
+
+        <div class="w-full text-center mt-sm z-10">
+          <button onclick="window.location.href='Trust Profile.html'" class="text-primary font-label-md text-label-md hover:underline focus:outline-none transition-colors flex items-center justify-center gap-xs mx-auto">
+            <span>View Full Trust Profile</span>
+            <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Adequate Bottom Spacer -->
+      <div class="h-32"></div>
+    </div>
+  </main>
+
+  <!-- Fixed Bottom CTA Bar (Risk Action) -->
+  <div class="fixed bottom-0 left-0 right-0 p-margin-mobile bg-surface/90 backdrop-blur-md border-t border-outline-variant/20 shadow-[0_-4px_6px_-1px_rgba(26,43,60,0.02)] pb-safe flex items-center justify-between z-40">
+    <div class="flex flex-col">
+      <span class="font-label-sm text-label-sm text-on-surface-variant">Total</span>
+      <span class="font-title-md text-title-md text-on-surface">RM 150.00</span>
+    </div>
+    <button onclick="openRiskModal()" class="bg-error hover:bg-error/90 text-on-error font-label-md text-label-md py-3 px-6 rounded-full shadow-md transition-all active:scale-95 flex items-center gap-sm">
+      <span>Proceed with Risk</span>
+      <span class="material-symbols-outlined text-[18px]">warning</span>
+    </button>
+  </div>
+
+  <!-- High Risk Confirmation Modal -->
+  <div id="risk-modal" class="fixed inset-0 z-50 flex items-center justify-center p-margin-mobile bg-on-background/60 backdrop-blur-sm hidden">
+    <div class="bg-surface-container-lowest w-full max-w-sm rounded-2xl p-lg shadow-2xl flex flex-col gap-md border border-error/20">
+      <div class="w-12 h-12 rounded-full bg-error-container text-error flex items-center justify-center">
+        <span class="material-symbols-outlined text-[28px]">gavel</span>
+      </div>
+      
+      <div class="flex flex-col gap-xs">
+        <h3 class="font-title-md text-title-md text-on-surface">High Risk Order Warning</h3>
+        <p class="font-body-md text-body-md text-on-surface-variant">
+          ABC Fitness currently has unresolved consumer dispute claims. If service is non-delivered, refund resolution may take longer under the decentralized protocol.
+        </p>
+      </div>
+
+      <div class="flex flex-col gap-sm pt-sm">
+        <button type="button" onclick="confirmPayment()" class="w-full bg-error text-on-error font-label-md text-label-md py-3 rounded-full flex items-center justify-center gap-xs hover:bg-error/90 active:scale-98 transition-all">
+          <span>I Understand, Pay RM 150.00</span>
+        </button>
+        <button type="button" onclick="closeRiskModal()" class="w-full bg-transparent hover:bg-surface-container text-on-surface-variant font-label-md text-label-md py-2.5 rounded-full transition-colors">
+          Cancel & Return
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function toggleContactEdit() {
+      const displayView = document.getElementById('contact-display-view');
+      const editView = document.getElementById('contact-edit-view');
+      const editBtn = document.getElementById('edit-contact-btn');
+      const isHidden = editView.classList.contains('hidden');
+
+      if (isHidden) {
+        displayView.classList.add('hidden');
+        editView.classList.remove('hidden');
+        editBtn.classList.add('hidden');
+      } else {
+        editView.classList.add('hidden');
+        displayView.classList.remove('hidden');
+        editBtn.classList.remove('hidden');
+      }
+    }
+
+    function saveContactInfo() {
+      const email = document.getElementById('input-email').value;
+      const phone = document.getElementById('input-phone').value;
+      if (!email || !phone) return;
+
+      document.getElementById('display-email').innerText = email;
+      document.getElementById('display-phone').innerText = phone;
+      toggleContactEdit();
+    }
+
+    function openRiskModal() {
+      document.getElementById('risk-modal').classList.remove('hidden');
+    }
+
+    function closeRiskModal() {
+      document.getElementById('risk-modal').classList.add('hidden');
+    }
+
+    function confirmPayment() {
+      closeRiskModal();
+      alert('Transaction Submitted to Blockchain Network');
+    }
+  </script>
+</body>
+</html>

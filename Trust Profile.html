@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&amp;display=swap" rel="stylesheet"/>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "inverse-primary": "#b4c5ff",
+            "surface-tint": "#0053db",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#005236",
+            "on-tertiary": "#ffffff",
+            "tertiary-fixed-dim": "#4edea3",
+            "secondary-fixed-dim": "#b7c8de",
+            "surface-bright": "#f8f9ff",
+            "surface-container": "#e5eeff",
+            "inverse-on-surface": "#eaf1ff",
+            "background": "#f8f9ff",
+            "error-container": "#ffdad6",
+            "on-secondary-fixed": "#0b1d2d",
+            "on-primary": "#ffffff",
+            "primary": "#004ac6",
+            "on-secondary-fixed-variant": "#38485a",
+            "on-primary-fixed-variant": "#003ea8",
+            "error": "#ba1a1a",
+            "on-tertiary-container": "#bdffdb",
+            "secondary-fixed": "#d2e4fb",
+            "inverse-surface": "#213145",
+            "on-background": "#0b1c30",
+            "surface-container-low": "#eff4ff",
+            "surface-container-highest": "#d3e4fe",
+            "on-error": "#ffffff",
+            "on-surface-variant": "#434655",
+            "on-secondary-container": "#556679",
+            "secondary": "#4f6073",
+            "secondary-container": "#d2e4fb",
+            "on-surface": "#0b1c30",
+            "on-primary-container": "#eeefff",
+            "tertiary-container": "#007d55",
+            "outline": "#737686",
+            "on-primary-fixed": "#00174b",
+            "primary-fixed-dim": "#b4c5ff",
+            "tertiary": "#006242",
+            "surface-container-high": "#dce9ff",
+            "on-secondary": "#ffffff",
+            "surface": "#f8f9ff",
+            "tertiary-fixed": "#6ffbbe",
+            "outline-variant": "#c3c6d7",
+            "on-tertiary-fixed": "#002113",
+            "surface-dim": "#cbdbf5",
+            "primary-fixed": "#dbe1ff",
+            "primary-container": "#2563eb",
+            "on-error-container": "#93000a",
+            "surface-variant": "#d3e4fe",
+            "warning-red": "#DC3545",
+            "warning-red-container": "#F8D7DA",
+            "on-warning-red-container": "#842029"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "xl": "40px",
+            "lg": "24px",
+            "sm": "8px",
+            "gutter": "24px",
+            "md": "16px",
+            "margin-mobile": "16px",
+            "base": "4px",
+            "container-max": "1280px",
+            "xs": "4px"
+          },
+          "fontFamily": {
+            "headline-lg-mobile": ["Inter"],
+            "display-lg": ["Inter"],
+            "label-sm": ["Inter"],
+            "body-md": ["Inter"],
+            "label-md": ["Inter"],
+            "headline-lg": ["Inter"],
+            "body-lg": ["Inter"],
+            "title-md": ["Inter"]
+          },
+          "fontSize": {
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+            "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.01em", "fontWeight": "500" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+            "title-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }]
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @layer base {
+      html, body {
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+        padding: 0;
+        overflow-x: hidden;
+        overflow-y: auto;
+        -webkit-tap-highlight-color: transparent;
+      }
+      .pb-safe {
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      .pt-safe {
+        padding-top: env(safe-area-inset-top, 0px);
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-background font-body-md text-on-background">
+  <svg aria-hidden="true" class="inline-defs-container" style="position:absolute;width:0;height:0;overflow:hidden"></svg>
+  
+  <header class="fixed top-0 w-full z-50 bg-surface/80 backdrop-blur-xl shadow-[0_1px_8px_rgba(0,0,0,0.04)] pt-safe">
+    <div class="h-16 px-margin-mobile flex items-center gap-md">
+      <button class="w-10 h-10 -ml-2 flex items-center justify-center text-on-surface hover:bg-surface-container rounded-full transition-colors" onclick="history.back()">
+        <span class="material-symbols-outlined">arrow_back</span>
+      </button>
+      <div class="flex items-center gap-sm">
+        <h1 class="font-title-md text-title-md text-on-surface">Merchant Details</h1>
+      </div>
+      <div class="ml-auto w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+        <span class="material-symbols-outlined text-on-primary text-[18px]">lock</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="pt-20 pb-safe w-full bg-surface">
+    <div class="flex flex-col w-full bg-surface gap-md px-margin-mobile">
+      <!-- Merchant Header -->
+      <div class="flex flex-col items-center justify-center pt-md">
+        <h2 class="font-title-md text-title-md text-on-surface mb-xs">Merchant A (ABC Fitness)</h2>
+        <div class="bg-warning-red-container text-on-warning-red-container px-sm py-xs rounded-full font-label-md text-label-md flex items-center gap-xs">
+          <span class="material-symbols-outlined text-[16px]">warning</span>
+          Status: Under Review
+        </div>
+      </div>
+
+      <!-- Main Health Ring Card -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-md p-md mt-sm flex flex-col relative overflow-hidden">
+        <div class="absolute inset-0 bg-gradient-to-br from-warning-red-container/20 via-transparent to-transparent pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col items-center mb-md">
+          <h2 class="font-title-md text-title-md text-on-surface-variant mb-sm">Current Health Score</h2>
+          
+          <div class="relative flex items-center justify-center w-32 h-32">
+            <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.9155" fill="none" class="text-outline-variant" stroke="currentColor" stroke-width="3"></circle>
+              <circle cx="18" cy="18" r="15.9155" fill="none" class="text-warning-red" stroke="currentColor" stroke-width="3" stroke-dasharray="38, 100" stroke-linecap="round"></circle>
+            </svg>
+            <div class="absolute flex flex-col items-center justify-center">
+              <div class="font-display-lg text-display-lg text-warning-red leading-none">38</div>
+              <div class="font-label-md text-label-md text-outline">/ 100</div>
+            </div>
+          </div>
+        </div>
+
+        <h3 class="font-title-md text-title-md text-on-surface mb-sm">30-Day Health Trend</h3>
+        
+        <div class="w-full relative aspect-[8/3] max-h-48 my-xs">
+          <svg class="w-full h-full" viewBox="0 0 400 150" preserveAspectRatio="xMidYMid meet">
+            <!-- Grid lines -->
+            <line class="text-outline-variant" stroke="currentColor" stroke-dasharray="4" stroke-width="0.5" x1="30" x2="390" y1="25" y2="25"></line>
+            <line class="text-outline-variant" stroke="currentColor" stroke-dasharray="4" stroke-width="0.5" x1="30" x2="390" y1="75" y2="75"></line>
+            <line class="text-outline-variant" stroke="currentColor" stroke-dasharray="4" stroke-width="0.5" x1="30" x2="390" y1="125" y2="125"></line>
+            <!-- Y-axis labels -->
+            <text class="font-label-sm text-label-sm text-outline" fill="currentColor" x="0" y="28">100</text>
+            <text class="font-label-sm text-label-sm text-outline" fill="currentColor" x="0" y="78">60</text>
+            <text class="font-label-sm text-label-sm text-outline" fill="currentColor" x="0" y="128">20</text>
+            <!-- Trend Line -->
+            <path class="text-warning-red" d="M 40,30 L 100,32 L 160,35 L 220,40 L 280,120 L 340,115 L 390,125" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+            <!-- Area under line -->
+            <path d="M 40,150 L 40,30 L 100,32 L 160,35 L 220,40 L 280,120 L 340,115 L 390,125 L 390,150 Z" fill="url(#redGradient)" opacity="0.2"></path>
+            <defs>
+              <linearGradient id="redGradient" x1="0%" x2="0%" y1="0%" y2="100%">
+                <stop offset="0%" stop-color="#DC3545"></stop>
+                <stop offset="100%" stop-color="#DC3545" stop-opacity="0"></stop>
+              </linearGradient>
+            </defs>
+            <!-- Data Points -->
+            <circle class="text-warning-red" cx="40" cy="30" fill="currentColor" r="4"></circle>
+            <circle class="text-warning-red" cx="280" cy="120" fill="currentColor" r="4"></circle>
+            <circle class="text-warning-red" cx="390" cy="125" fill="currentColor" r="4"></circle>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Staked Bond Section -->
+      <div class="bg-surface-container-lowest rounded-xl shadow-sm p-md flex flex-col gap-xs">
+        <div class="font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider">BOND AMOUNT STAKED</div>
+        <div class="font-headline-lg text-headline-lg text-on-surface">2.50 SUI <span class="font-body-md text-on-surface-variant font-normal">(≈ RM 50,000)</span></div>
+        <div class="font-label-md text-label-md text-warning-red flex items-center gap-xs">
+          <span class="material-symbols-outlined text-[16px]">error</span>
+          Required Bond: 2.80 SUI (Bond Deficit)
+        </div>
+      </div>
+
+      <!-- Active Risk Signals Section -->
+      <div class="flex flex-col gap-sm">
+        <h3 class="font-title-md text-title-md text-on-surface px-xs">Active Risk Signals</h3>
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-md flex items-start gap-md">
+          <div class="w-10 h-10 rounded-full bg-warning-red-container text-on-warning-red-container flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined">payments</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start mb-xs">
+              <h4 class="font-body-md text-body-md font-semibold text-on-surface truncate">Mass Refund Requests</h4>
+              <span class="font-label-md text-label-md text-warning-red font-semibold shrink-0">-40 pts</span>
+            </div>
+            <div class="flex items-center gap-xs text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px]">link</span>
+              <span class="font-label-sm text-label-sm">Verified on Sui Chain</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-surface-container-lowest rounded-xl shadow-sm p-md flex items-start gap-md">
+          <div class="w-10 h-10 rounded-full bg-warning-red-container text-on-warning-red-container flex items-center justify-center shrink-0">
+            <span class="material-symbols-outlined">gpp_maybe</span>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="flex justify-between items-start mb-xs">
+              <h4 class="font-body-md text-body-md font-semibold text-on-surface truncate">Service Interruption Reported</h4>
+              <span class="font-label-md text-label-md text-warning-red font-semibold shrink-0">-20 pts</span>
+            </div>
+            <div class="flex items-center gap-xs text-on-surface-variant">
+              <span class="material-symbols-outlined text-[14px]">group</span>
+              <span class="font-label-sm text-label-sm">14 active user reports</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Section -->
+      <div class="flex flex-col items-center gap-md mt-lg mb-xl">
+        <button onclick="window.location.href='Fitbook Checkout (Under Review).html'" class="w-full bg-primary text-on-primary py-md rounded-lg font-label-md text-label-md transition-colors flex items-center justify-center gap-sm shadow-sm active:scale-[0.98]">
+          <span class="material-symbols-outlined text-[18px]">arrow_back</span>
+          Back to Checkout
+        </button>
+
+        <button onclick="window.location.href='File Trust Profile.html'" class="w-full bg-warning-red-container text-on-warning-red-container py-md rounded-lg font-label-md text-label-md transition-colors flex items-center justify-center gap-sm active:scale-[0.98]">
+          File a Public Trust Complaint 
+          <span class="material-symbols-outlined text-[18px]">arrow_forward</span>
+        </button>
+
+        <div class="flex items-center gap-xs text-on-surface-variant opacity-70 mt-xs">
+          <span class="material-symbols-outlined text-[14px]">verified_user</span>
+          <span class="font-label-sm text-label-sm font-mono tracking-tight">Sui Tx: 0x9b2...4f</span>
+        </div>
+      </div>
+    </div>
+  </main>
+</body>
+</html>
