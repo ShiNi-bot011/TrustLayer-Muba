@@ -30,7 +30,7 @@ export default function KioskView() {
         {/* Left Side: Branding & Feed */}
         <div className="kiosk-left">
           <h1 className="kiosk-title">Welcome to<br />1Fit Premium</h1>
-          <p className="kiosk-subtitle">Presentation prototype: tap the simulated wallet scanner to preview a future attendance flow. This kiosk does not submit Sui transactions.</p>
+          <p className="kiosk-subtitle">Presentation prototype for a future attendance flow. Use Consumer Wallet → Scan to run the labelled simulation; this kiosk display does not submit Sui transactions.</p>
 
           <div className="kiosk-live-feed">
             <div className="kiosk-feed-title">🧪 Simulated Check-In Activity — Not On-Chain</div>

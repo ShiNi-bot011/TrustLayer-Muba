@@ -719,6 +719,18 @@ a { color: inherit; text-decoration: none; }
 }
 
 .portal-nav-item:hover { background: var(--bg-card-hover); color: var(--text-primary); }
+.portal-nav-item--disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+.portal-nav-item--disabled:hover { background: transparent; color: var(--text-secondary); }
+.portal-nav-button {
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+}
+.portal-nav-button:disabled { cursor: not-allowed; opacity: 0.45; }
 .portal-nav-item--active {
   background: var(--accent-dim);
   color: var(--text-primary);
@@ -1042,6 +1054,10 @@ a { color: inherit; text-decoration: none; }
   border-bottom: 1px solid var(--border);
   cursor: pointer;
   user-select: none;
+  width: 100%;
+  color: var(--text-primary);
+  background: transparent;
+  text-align: left;
 }
 .operator-header:hover { background: var(--bg-card-hover); }
 
@@ -1402,6 +1418,11 @@ a { color: inherit; text-decoration: none; }
 }
 .mobile-nav-item--active {
   color: var(--accent);
+}
+.mobile-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+  filter: grayscale(0.25);
 }
 
 /* Quan prototype responsive behavior, adapted to the integrated views. */

@@ -1,7 +1,8 @@
 export const DEMO_NETWORK = 'testnet' as const
 
 export const SUI_GRPC_URL = 'https://fullnode.testnet.sui.io:443'
-export const SUI_JSON_RPC_URL = 'https://sui-testnet-rpc.publicnode.com'
+export const SUI_JSON_RPC_URL =
+  import.meta.env.VITE_SUI_JSON_RPC_URL || 'https://sui-testnet-rpc.publicnode.com'
 
 export const PACKAGE_ID =
   '0x88f8473000a36652045c2253e4e2b0b9c6d93fa44fda61943580f2918ee07475'
@@ -20,4 +21,8 @@ export const ENABLE_EXPLICIT_MOCK_DATA = import.meta.env.VITE_ENABLE_MOCK_DATA =
 
 export function transactionExplorerUrl(digest: string): string {
   return `https://testnet.suivision.xyz/txblock/${digest}`
+}
+
+export function objectExplorerUrl(objectId: string): string {
+  return `https://testnet.suivision.xyz/object/${objectId}`
 }
