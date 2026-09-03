@@ -4,19 +4,19 @@ import { HealthScoreGauge } from './HealthScoreGauge';
 import { formatSuiBond } from './format';
 
 export default function App() {
-  // 控制演示的 3 个阶段
+  // The 3 stages of controlling a demo
   const [demoStep, setDemoStep] = useState<1 | 2 | 3>(1);
 
   return (
     <div className="min-h-screen bg-slate-100 flex flex-col font-sans">
-      {/* 顶部给评审看的 Demo 控制条 */}
+      {/* Demo control bar at the top for reviewers */}
       <header className="bg-slate-900 text-white p-3 flex justify-between items-center shadow-lg border-b border-slate-700">
         <div className="flex items-center gap-2">
           <span className="bg-blue-600 text-xs font-bold px-2 py-0.5 rounded">TrustLayer</span>
           <span className="text-sm font-semibold tracking-wide">Live Demo Presenter</span>
         </div>
         
-        {/* 3 个核心 Demo 节点 */}
+        {/* 3 core demo nodes */}
         <div className="flex gap-2 bg-slate-800 p-1 rounded-lg">
           <button
             onClick={() => setDemoStep(1)}
@@ -45,7 +45,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* 核心展示主体 */}
+      {/* Core display subject */}
       <main className="flex-1 p-8 max-w-4xl mx-auto w-full">
         {demoStep === 1 && (
           <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 space-y-4">
