@@ -28,7 +28,7 @@ export const MOCK_MODE = false;
  */
 export const MERCHANT_OBJECT_IDS: Record<string, string> = {
   "Merchant A": "0x77b343276131947ae93218ae7d36e34ef3576c8cc9dc9377401af7c34e6e445e",
-  "Merchant B": "0x49aba03938aa9d99d5a9b090db555d3f31ab672a2dceb1406f4a3bad4233abca",
+  "Merchant B": "0xac503147dda1afa9b63c6c503786b7fc9014f84c94061f1fe7556800888f967f",
 };
 
 /** Sui testnet JSON-RPC endpoint */
@@ -84,7 +84,7 @@ const MOCK_MERCHANTS: Record<string, MerchantState> = {
     isMockData: true,
   },
   "Merchant B": {
-    objectId: "0x49aba03938aa9d99d5a9b090db555d3f31ab672a2dceb1406f4a3bad4233abca",
+    objectId: "0xac503147dda1afa9b63c6c503786b7fc9014f84c94061f1fe7556800888f967f",
     name: "Merchant B - 1Fit Style",
     bondBalanceMist: BigInt("1000000000"), // 1.0 SUI
     healthScore: 90,
