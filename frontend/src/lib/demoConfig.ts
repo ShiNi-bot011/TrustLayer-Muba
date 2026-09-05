@@ -12,8 +12,14 @@ export const AUTHORIZED_DEMO_WALLET =
 
 export const MERCHANT_OBJECT_IDS = {
   'Merchant A': '0x77b343276131947ae93218ae7d36e34ef3576c8cc9dc9377401af7c34e6e445e',
-  'Merchant B': '0xac503147dda1afa9b63c6c503786b7fc9014f84c94061f1fe7556800888f967f',
-} as const
+  get 'Merchant B'(): string {
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('TL_ACTIVE_MERCHANT_B');
+      if (stored) return stored;
+    }
+    return '0xac503147dda1afa9b63c6c503786b7fc9014f84c94061f1fe7556800888f967f';
+  },
+};
 
 export const CLOCK_OBJECT_ID = '0x6'
 

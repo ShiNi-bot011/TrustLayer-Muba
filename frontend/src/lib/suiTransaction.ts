@@ -6,6 +6,24 @@ import { Transaction } from '@mysten/sui/transactions';
 import { CLOCK_OBJECT_ID, PACKAGE_ID } from './demoConfig';
 
 /**
+ * Build transaction to register a brand new merchant on Sui.
+ */
+export function buildRegisterMerchantTx(
+  name: string,
+  initialScore: number
+): Transaction {
+  const tx = new Transaction();
+  tx.moveCall({
+    target: `${PACKAGE_ID}::merchant::register_merchant`,
+    arguments: [
+      tx.pure.string(name),
+      tx.pure.u64(initialScore),
+    ],
+  });
+  return tx;
+}
+
+/**
  * Build transaction to update health score and trailing prepaid revenue on-chain.
  * (Restricted to oracle signer).
  */

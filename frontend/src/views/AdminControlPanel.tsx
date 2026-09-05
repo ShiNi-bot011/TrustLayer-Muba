@@ -22,9 +22,12 @@ import {
   buildInitiateSlashTx,
   buildSubmitCounterEvidenceTx,
   buildDepositBondTx,
+  buildRegisterMerchantTx,
 } from '../lib/suiTransaction'
 import {
   AUTHORIZED_DEMO_WALLET,
+  PACKAGE_ID,
+  SUI_JSON_RPC_URL,
   transactionExplorerUrl,
 } from '../lib/demoConfig'
 
@@ -154,6 +157,74 @@ export default function AdminControlPanel() {
       appendLog(actionName, `Confirmed on Sui. ${successMessage}`, false, digest)
     } catch (err) {
       appendLog(actionName, err instanceof Error ? err.message : String(err), true)
+    } finally {
+      busyRef.current = false
+      setBusy(false)
+    }
+  }
+
+  // 1-Click Reset to Golden State (Active, Score 95)
+  async function handleResetMerchant() {
+    if (busyRef.current) return
+    if (!isAuthorizedWallet) {
+      appendLog('Reset Demo State', `Connect the authorized demo wallet ${AUTHORIZED_DEMO_WALLET}.`, true)
+      return
+    }
+    busyRef.current = true
+    setBusy(true)
+    appendLog('Reset Demo State', `Restoring ${selectedMerchant} to Golden Baseline (Active, Score 95)…`)
+
+    try {
+      if (activeState?.status === STATUS.PENDING_SLASH) {
+        appendLog('Reset Demo State', 'Submitting demo counter-evidence to clear pending slash…')
+        try {
+          const tx = buildSubmitCounterEvidenceTx(activeState.objectId, 'DEMO_RESET_EVIDENCE')
+          await dAppKit.signAndExecuteTransaction({ transaction: tx })
+          await new Promise(r => setTimeout(r, 1000))
+        } catch {
+          appendLog('Reset Demo State', 'Challenge window expired; provisioning a clean merchant…')
+        }
+      }
+
+      if (activeState?.status === STATUS.ACTIVE) {
+        const tx = buildUpdateHealthScoreTx(activeState.objectId, 95, 10000000000)
+        await dAppKit.signAndExecuteTransaction({ transaction: tx })
+        appendLog('Reset Demo State', `✓ Restored ${selectedMerchant} on-chain: Score 95, ACTIVE!`)
+        await fetchState()
+        return
+      }
+
+      appendLog('Reset Demo State', 'Deploying a fresh Merchant B object on Sui testnet…')
+      const tx = buildRegisterMerchantTx('Merchant B - 1Fit Style', 95)
+      await dAppKit.signAndExecuteTransaction({ transaction: tx })
+
+      await new Promise(r => setTimeout(r, 1500))
+      const res = await fetch(SUI_JSON_RPC_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          jsonrpc: '2.0',
+          id: 1,
+          method: 'suix_queryEvents',
+          params: [{ MoveEventType: `${PACKAGE_ID}::merchant::MerchantRegistered` }, null, 1, true],
+        }),
+      })
+      const json = await res.json()
+      const newId = json?.result?.data?.[0]?.parsedJson?.merchant_id
+      if (newId) {
+        localStorage.setItem('TL_ACTIVE_MERCHANT_B', newId)
+        appendLog('Reset Demo State', `✓ Fresh Merchant B active: ${newId.slice(0, 10)}… Score: 95. Status: ACTIVE.`)
+        try {
+          const depTx = buildDepositBondTx(newId, BigInt(1000000000))
+          await dAppKit.signAndExecuteTransaction({ transaction: depTx })
+          appendLog('Reset Demo State', '✓ Initial 1.0 SUI bond deposited into fresh Merchant B!')
+        } catch {}
+        window.location.reload()
+        return
+      }
+      await fetchState()
+    } catch (err: any) {
+      appendLog('Reset Demo State', err instanceof Error ? err.message : String(err), true)
     } finally {
       busyRef.current = false
       setBusy(false)
@@ -486,18 +557,41 @@ export default function AdminControlPanel() {
                     Scope: live bond deposit → simulated risk input → pending slash → merchant challenge. No completed liquidation is claimed.
                   </div>
                 </div>
-                <div className="operator-merchant-tabs">
+                <div className="operator-merchant-tabs" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <button
+                      className={`op-merchant-tab ${selectedMerchant === 'Merchant A' ? 'op-merchant-tab--active' : ''}`}
+                      onClick={() => setSelectedMerchant('Merchant A')}
+                    >
+                      Target: Merchant A (Healthy)
+                    </button>
+                    <button
+                      className={`op-merchant-tab ${selectedMerchant === 'Merchant B' ? 'op-merchant-tab--active' : ''}`}
+                      onClick={() => setSelectedMerchant('Merchant B')}
+                    >
+                      Target: Merchant B (Failure Scenario Target)
+                    </button>
+                  </div>
+
                   <button
-                    className={`op-merchant-tab ${selectedMerchant === 'Merchant A' ? 'op-merchant-tab--active' : ''}`}
-                    onClick={() => setSelectedMerchant('Merchant A')}
+                    type="button"
+                    className="portal-btn"
+                    style={{
+                      background: 'linear-gradient(135deg, #10b981, #059669)',
+                      color: '#ffffff',
+                      fontWeight: 700,
+                      fontSize: '0.8rem',
+                      padding: '0.4rem 0.8rem',
+                      borderRadius: '8px',
+                      cursor: canWrite ? 'pointer' : 'not-allowed',
+                      border: 'none',
+                      boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)',
+                    }}
+                    disabled={!canWrite}
+                    onClick={handleResetMerchant}
+                    title="1-Click reset merchant to clean baseline (Active, Score 95)"
                   >
-                    Target: Merchant A (Healthy)
-                  </button>
-                  <button
-                    className={`op-merchant-tab ${selectedMerchant === 'Merchant B' ? 'op-merchant-tab--active' : ''}`}
-                    onClick={() => setSelectedMerchant('Merchant B')}
-                  >
-                    Target: Merchant B (Failure Scenario Target)
+                    🔄 1-Click Reset to Golden State (Score 95)
                   </button>
                 </div>
 
@@ -532,19 +626,19 @@ export default function AdminControlPanel() {
 
                   <button
                     className="scenario-btn scenario-btn--success"
-                    disabled={!canWrite || activeState?.status !== STATUS.ACTIVE}
+                    disabled={!canWrite}
                     onClick={() =>
                       runAction(
                         'Set Healthy Demo State',
                         selectedMerchant, 
                         () => buildUpdateHealthScoreTx(activeState!.objectId, 95, 10000000000), // ~10 SUI revenue
-                        `Submitted simulated healthy score inputs for ${selectedMerchant}. Health Score → 95. This does not create 30 days of on-chain check-ins.`
+                        `Submitted simulated healthy score inputs for ${selectedMerchant}. Health Score → 95.`
                       )
                     }
                   >
                     <span className="scenario-btn__icon">🌱</span>
                     <span className="scenario-btn__title">2. Set Healthy Score Input</span>
-                    <span className="scenario-btn__desc">Simulated off-chain inputs submit score 95 and revenue to Sui; no check-in history is created.</span>
+                    <span className="scenario-btn__desc">Simulated off-chain inputs submit score 95 and revenue to Sui; restores healthy baseline.</span>
                   </button>
 
                   <button
